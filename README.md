@@ -51,3 +51,33 @@ python scripts/check_repository.py
 ```
 
 See `docs/ENVIRONMENTS.md` for GitHub Actions and `PROGRESS.md` for verified progress.
+
+
+## Web workspace
+
+From the repository root, run:
+
+```bash
+python -m http.server 8080 --bind 127.0.0.1 --directory web
+```
+
+Open http://localhost:8080. This is a local development server, not production
+hosting. The responsive interface supports case selection, search/filtering,
+evidence inspection, browser-local reviewer notes/history, and JSON export.
+The screening case results are authored fictional examples, not model output.
+There is no authentication or clinical backend yet; use synthetic records only.
+
+### User-provided trial archive
+
+```bash
+python scripts/import_trials.py /path/to/clinical_dataset.zip --limit 200
+```
+
+Then open **Trial library**. The importer keeps only study metadata and eligibility
+text; no files are extracted. It rejects DTD/entity declarations and caps record
+size and preview count. Raw ZIPs and derived `web/local-trials.json` are ignored.
+The library is a historical snapshot, separate from the fictional screening demo.
+No claim is made that these studies are currently recruiting. Archive licensing
+and redistribution terms remain unverified; do not publish the dataset.
+
+Reviewed browser-local notes are not a secure or immutable audit trail.
