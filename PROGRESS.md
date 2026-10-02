@@ -43,3 +43,21 @@ the daily delivery cadence and resume with the next uncompleted backlog task.
 Verification: nine Python tests passed; JavaScript syntax check passed. Browser
 visual/interaction testing is not verified: Chromium installation failed in the
 execution environment. Full browser QA remains a follow-up acceptance item.
+
+## Increment 002 — evidence and criterion contracts (2026-10-02)
+
+One point allocated from data/contracts/ingestion (12 total). Acceptance:
+immutable, runtime-validated criteria, sources, citations and findings; six
+inclusion/exclusion verdict mappings; rejection of absent/incorrect citations,
+cross-patient sources, stale source versions, invalid offsets and unqualified
+unknowns. Covered by 12 new test methods, alongside the 9 existing tests.
+
+Cumulative weighted acceptance: 2/100 once this increment's checks pass.
+The additional UI work remains unscored; this is not a claim of 2% clinical
+accuracy or production readiness. Newer UI, TREC and configuration changes on
+main are preserved. No model calls, raw dataset publication, or cloud spending.
+
+Next: strict JSON case/report parsing and an integration boundary using these
+contracts. The frontend currently retains its own deterministic demo evaluator;
+these backend checks are not yet applied to UI output. Daily runs must read this
+record and continue, not repeat increment 002.
