@@ -71,7 +71,7 @@ Synthetic patient record (Synthea JSON)
 - Nothing real, nothing governed, nothing committed that isn't synthetic/public.
 
 ## Environments
-- GitHub environments ENG / TEST / PROD exist for CI/CD gating.
+- GitHub workflow references ENG / TEST / PROD; first successful execution creates missing environments. These are configuration checks, not cloud deployments.
 - Azure deployment (AKS or Container Apps) deferred — user will deploy later.
   When that happens: `azure/login` with federated credentials per environment,
   secrets as environment-scoped GitHub secrets.
