@@ -38,4 +38,16 @@ incorrect eligibility assertions compared with ordinary RAG.
 
 ## Status
 
-Scope pending user approval. No implementation yet.
+Implementation authorized for routine automatic delivery. Initial environment foundation is available; clinical functionality is not implemented yet.
+
+## Run locally
+
+Python 3.12, no third-party packages or Azure credentials required:
+
+```bash
+python -m clinical_trial
+python -m unittest discover -s tests -v
+python scripts/check_repository.py
+```
+
+See `docs/ENVIRONMENTS.md` for GitHub Actions and `PROGRESS.md` for verified progress.
