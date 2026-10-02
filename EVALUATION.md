@@ -45,3 +45,15 @@ incorrect eligibility assertions compared with ordinary RAG.
 - False eligibility assertions: ≥30% relative reduction vs baseline RAG.
 - Evidence correctness: ≥90% of citations valid.
 - Cost per case: reported, no fixed cap yet.
+
+## Supplementary benchmark: TREC 2022 Clinical Trials
+- **Topics:** `data/trec2022/topics2022.xml` — 50 patient case topics (NIST).
+- **Judgments:** `qrels2022.txt` — 35,394 trial-level relevance judgments, fetched via
+  `scripts/fetch_trec2022.sh` (not committed).
+- **Trial corpus:** ClinicalTrials.gov snapshot (Kaggle `skylord/all-clinical-trials`,
+  103,509 trial XMLs), ingested with `scripts/import_trials.py`. NOT committed —
+  488 MB exceeds GitHub's 100 MB file limit; see `data/trec2022/README.md`.
+- **Caveat:** snapshot dated May 2020 (stale). Benchmark comparisons only; the live
+  ClinicalTrials.gov API remains the source for current criteria.
+- **Scope note:** TREC labels are trial-level relevance; our primary metrics are
+  criterion-level. This benchmark supplements, not replaces, the Synthea-based eval.
