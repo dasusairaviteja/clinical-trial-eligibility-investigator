@@ -43,18 +43,17 @@ Implementation authorized for routine automatic delivery. Initial environment fo
 
 ## Environments
 
-| Environment | Open |
-|---|---|
-| ENG | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=ENG) |
-| TEST | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=TEST) |
-| PROD | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=PROD) |
+| Environment | Web app | Deployments |
+|---|---|---|
+| ENG | [triallens-eng.azurestaticapps.net](https://triallens-eng.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=ENG) |
+| TEST | [triallens-test.azurestaticapps.net](https://triallens-test.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=TEST) |
+| PROD | [triallens-prod.azurestaticapps.net](https://triallens-prod.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=PROD) |
 
 - [All environments (settings)](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/settings/environments)
 - [Actions runs](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/actions)
 
-These are GitHub environment records — the CI jobs validate configuration only.
-Azure deployment is still pending, so there are no live application URLs yet.
-See `docs/ENVIRONMENTS.md`.
+App URLs are placeholders — Azure Static Web Apps are not provisioned yet and
+will replace these links when deployment happens. See `docs/ENVIRONMENTS.md`.
 
 ## Run locally
 
