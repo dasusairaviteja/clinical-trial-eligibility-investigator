@@ -1,9 +1,104 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#123d35"><title>TrialLens · Research workspace</title><link rel="stylesheet" href="styles.css"></head>
-<body><a class="skip" href="#main">Skip to workspace</a><aside class="sidebar"><a class="brand" href="#"><span class="logo">✳</span> TrialLens<span class="brand-dot">®</span></a><div class="workspace-label">RESEARCH WORKSPACE</div><nav aria-label="Workspace"><button class="nav active" data-view="screening"><span>▦</span> Screening workspace</button><button class="nav" data-view="patients"><span>♙</span> Synthetic patients</button><button class="nav" data-view="dataset"><span>▤</span> Trial library</button><button class="nav" data-view="activity"><span>◷</span> Review activity</button><button class="nav" data-view="guide"><span>⊙</span> Research guide</button></nav><div class="sidebar-bottom"><div class="mode-dot"></div><strong>Evidence before inference.</strong><p>Designed for thoughtful,<br>human-led research.</p><div class="profile"><span class="avatar">SR</span><div>Sai Ravi Teja<small>Research workspace owner</small></div></div></div></aside>
-<div class="shell"><header><div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb">Screening</strong></div><div class="header-right"><span class="env">ENG preview</span><span class="avatar small">SR</span></div></header><main id="main"><div class="page-heading"><div><div class="eyebrow">CLINICAL TRIAL ELIGIBILITY INVESTIGATOR</div><h1 id="page-title">Clarity at every criterion.</h1><p class="subtitle">Connect patient evidence to trial criteria. Keep the human in the decision.</p></div><button id="export" class="button secondary">↓ Export review</button></div><div class="demo-banner"><span class="banner-icon">i</span><div><strong>Synthetic demonstration</strong> &nbsp; Fictional patients and trials. Findings are authored examples, not AI or clinical decisions.</div></div>
-<section id="screening-view"><div class="stats"><article><span class="stat-label">CRITERIA IN THIS CASE</span><strong id="total-count">6</strong><small>Inclusion + exclusion</small></article><article><span class="stat-label">EVIDENCE SUPPORTS</span><strong id="supported-count" class="green">3</strong><small>Criterion statement supported</small></article><article><span class="stat-label">NEEDS CLARIFICATION</span><strong id="unknown-count" class="amber">2</strong><small>Missing or incomplete evidence</small></article><article><span class="stat-label">REVIEWED BY YOU</span><strong id="reviewed-count">0<span> / 6</span></strong><small>Saved on this browser only</small></article></div>
-<div class="work-grid"><section class="card context"><div class="section-kicker">01 / CASE CONTEXT</div><h2>Start with the patient</h2><label for="patient">Synthetic patient</label><select id="patient"></select><div id="patient-summary"></div><div class="divider"></div><label for="trial">Fictional trial</label><select id="trial"><option value="DEMO-101">DEMO-101 · Metabolic health</option><option value="DEMO-202">DEMO-202 · Mobility study</option></select><div id="trial-summary"></div><button class="button primary full" id="load">Load demonstration <span>↗</span></button><p class="quiet">No model calls. No patient uploads.<br>All records in this preview are fictional.</p></section>
-<section class="card criteria"><div class="criteria-heading"><div><div class="section-kicker">02 / EVIDENCE REVIEW</div><h2>Criterion by criterion</h2></div><span class="pill neutral" id="case-label">DEMO-101</span></div><div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Search criteria or evidence…" aria-label="Search criteria or evidence"></div><div class="filters" role="group" aria-label="Filter criteria"><button class="filter active" data-filter="all">All criteria</button><button class="filter" data-filter="unknown">Needs clarification</button><button class="filter" data-filter="supported">Supported</button><button class="filter" data-filter="contradicted">Contradicted</button></div><div id="criteria-list"></div><div class="list-footer"><span class="tiny-dot"></span> Every finding stays connected to its source.</div></section>
-<aside class="card detail" id="detail" aria-label="Evidence detail"></aside></div><div class="bottom-note"><span>✳</span><div><strong>A screening aid. Always a human decision.</strong><p>Meeting an exclusion statement is a potential exclusion—not evidence of eligibility. Unknown does not mean absent.</p></div><span class="research-label">RESEARCH USE ONLY</span></div></section>
-<section id="patients-view" class="alternate" hidden></section><section id="dataset-view" class="alternate" hidden></section><section id="activity-view" class="alternate" hidden></section><section id="guide-view" class="alternate" hidden></section><footer>TrialLens <span>Level 3 · Project 01</span><span>Built for transparent clinical research</span></footer></main></div><div id="toast" role="status" aria-live="polite"></div><script src="app.js" defer></script></body></html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123d35">
+<meta name="description" content="TrialLens — a research workspace for investigating clinical trial eligibility against synthetic patient records.">
+<title>TrialLens · Clinical Trial Eligibility Investigator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to workspace</a>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" aria-label="Workspace navigation">
+    <a class="brand" href="#" id="brand-home"><span class="logo" aria-hidden="true">✳</span><span>TrialLens</span></a>
+    <div class="workspace-label">RESEARCH WORKSPACE</div>
+    <nav aria-label="Workspace">
+      <button class="nav active" data-view="dashboard"><span aria-hidden="true">◈</span> Dashboard</button>
+      <button class="nav" data-view="screening"><span aria-hidden="true">▦</span> Screening workspace</button>
+      <button class="nav" data-view="compare"><span aria-hidden="true">◫</span> Case comparison</button>
+      <button class="nav" data-view="checklist"><span aria-hidden="true">☰</span> Missing-info checklist <em class="nav-badge" id="nav-checklist-count" hidden></em></button>
+      <button class="nav" data-view="report"><span aria-hidden="true">⎙</span> Reviewer report</button>
+      <button class="nav" data-view="dataset"><span aria-hidden="true">▤</span> Trial library</button>
+      <button class="nav" data-view="patients"><span aria-hidden="true">♙</span> Synthetic patients</button>
+      <button class="nav" data-view="activity"><span aria-hidden="true">◷</span> Review activity</button>
+      <button class="nav" data-view="guide"><span aria-hidden="true">⊙</span> Research guide</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="mode-dot" aria-hidden="true"></div>
+      <strong>Evidence before inference.</strong>
+      <p>Designed for thoughtful,<br>human-led research.</p>
+      <div class="profile"><span class="avatar">SR</span><div>Sai Ravi Teja<small>Research workspace owner</small></div></div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN SHELL ============ -->
+  <div class="shell">
+    <header>
+      <div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb">Dashboard</strong></div>
+      <div class="header-right">
+        <button class="icon-btn" id="palette-btn" title="Command palette (Ctrl/⌘+K)" aria-label="Open command palette"><span aria-hidden="true">⌘K</span></button>
+        <button class="icon-btn" id="theme-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><span aria-hidden="true" id="theme-icon">◐</span></button>
+        <span class="env" id="env-badge">ENG preview</span>
+        <span class="avatar small" title="Sai Ravi Teja">SR</span>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">CLINICAL TRIAL ELIGIBILITY INVESTIGATOR</div>
+          <h1 id="page-title">Morning briefing.</h1>
+          <p class="subtitle" id="page-subtitle">Your review queue, at a glance.</p>
+        </div>
+        <div class="heading-actions">
+          <button id="export" class="button secondary" hidden>↓ Export review</button>
+          <button id="print-report" class="button secondary" hidden>⎙ Print report</button>
+        </div>
+      </div>
+
+      <div class="demo-banner" role="note">
+        <span class="banner-icon" aria-hidden="true">i</span>
+        <div><strong>Synthetic demonstration.</strong> Fictional patients and trials. Findings are authored examples — not AI output, not clinical decisions.</div>
+      </div>
+
+      <section id="dashboard-view" aria-label="Dashboard"></section>
+      <section id="screening-view" aria-label="Screening workspace" hidden></section>
+      <section id="compare-view" aria-label="Case comparison" hidden></section>
+      <section id="checklist-view" aria-label="Missing-information checklist" hidden></section>
+      <section id="report-view" aria-label="Reviewer report" hidden></section>
+      <section id="dataset-view" class="alternate" aria-label="Trial library" hidden></section>
+      <section id="patients-view" class="alternate" aria-label="Synthetic patients" hidden></section>
+      <section id="activity-view" class="alternate" aria-label="Review activity" hidden></section>
+      <section id="guide-view" class="alternate" aria-label="Research guide" hidden></section>
+
+      <footer>TrialLens <span>Level 3 · Project 01</span><span>Built for transparent clinical research · <span id="kbd-hint">Press <kbd>?</kbd> for shortcuts</span></span></footer>
+    </main>
+  </div>
+</div>
+
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="palette-overlay" id="palette-overlay" hidden>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <input id="palette-input" type="text" placeholder="Type a command or search…" aria-label="Command palette" autocomplete="off">
+    <div id="palette-list" role="listbox" aria-label="Commands"></div>
+    <div class="palette-hint"><kbd>↑↓</kbd> navigate · <kbd>↵</kbd> run · <kbd>esc</kbd> close</div>
+  </div>
+</div>
+
+<!-- ============ SHORTCUTS MODAL ============ -->
+<div class="palette-overlay" id="shortcuts-overlay" hidden>
+  <div class="palette shortcuts" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <h2>Keyboard shortcuts</h2>
+    <dl id="shortcuts-list"></dl>
+    <button class="button secondary" id="shortcuts-close">Close</button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="app.js" defer></script>
+</body>
+</html>
