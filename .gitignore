@@ -5,3 +5,7 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+# User datasets and local derived previews
+*.zip
+data/raw/
+web/local-trials.json
