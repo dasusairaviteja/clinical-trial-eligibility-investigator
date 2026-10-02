@@ -40,6 +40,22 @@ incorrect eligibility assertions compared with ordinary RAG.
 
 Implementation authorized for routine automatic delivery. Initial environment foundation is available; clinical functionality is not implemented yet.
 
+
+## Environments
+
+| Environment | Open |
+|---|---|
+| ENG | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=ENG) |
+| TEST | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=TEST) |
+| PROD | [Deployment activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=PROD) |
+
+- [All environments (settings)](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/settings/environments)
+- [Actions runs](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/actions)
+
+These are GitHub environment records — the CI jobs validate configuration only.
+Azure deployment is still pending, so there are no live application URLs yet.
+See `docs/ENVIRONMENTS.md`.
+
 ## Run locally
 
 Python 3.12, no third-party packages or Azure credentials required:
