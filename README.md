@@ -1,6 +1,6 @@
 # Clinical Trial Eligibility Investigator
 
-**Level 3 research project** — a single tool-using AI agent that investigates and verifies
+**Research project** — a single tool-using AI agent that investigates and verifies
 whether a patient is eligible for a clinical trial.
 
 ## What it does
