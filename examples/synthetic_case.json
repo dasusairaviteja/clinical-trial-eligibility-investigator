@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "case_id": "DEMO-CASE-001",
+  "patient_id": "SYN-001",
+  "trial_id": "DEMO-TRIAL-001",
+  "sources": [
+    {"source_id": "intake", "patient_id": "SYN-001", "version": "v1", "text": "Age: 54 years."}
+  ],
+  "criteria": [
+    {"criterion_id": "age", "trial_id": "DEMO-TRIAL-001", "kind": "inclusion", "statement": "Age over 18 years"},
+    {"criterion_id": "admission", "trial_id": "DEMO-TRIAL-001", "kind": "exclusion", "statement": "Hospital admission in the preceding 30 days"}
+  ],
+  "findings": [
+    {"criterion_id": "age", "verdict": "supported", "citations": [{"source_id": "intake", "source_version": "v1", "start": 0, "end": 7, "quote": "Age: 54"}], "missing_information": []},
+    {"criterion_id": "admission", "verdict": "unknown", "citations": [], "missing_information": ["Obtain complete encounter history for the 30-day window."]}
+  ]
+}

@@ -61,3 +61,20 @@ Next: strict JSON case/report parsing and an integration boundary using these
 contracts. The frontend currently retains its own deterministic demo evaluator;
 these backend checks are not yet applied to UI output. Daily runs must read this
 record and continue, not repeat increment 002.
+
+## Increment 003 — strict case JSON and review reports (2026-10-02)
+
+One additional point from data/contracts/ingestion: versioned strict JSON input,
+bounded parsing, exact field and collection checks, duplicate-key rejection,
+case/trial/patient linkage, complete one-to-one finding coverage, and deterministic
+report generation using increment 002 evidence validation. A synthetic example
+and `python -m clinical_trial.report` make this boundary runnable without Azure.
+
+Acceptance: 13 new report/CLI test methods plus the existing 21 tests; no partial
+report on failure, no raw input in errors, and no overall eligibility conclusion.
+Cumulative weighted acceptance after passing checks: 3/100 (foundation 1/8,
+data/contracts/ingestion 2/12). The earlier daytime increment is not repeated.
+
+Next: connect case construction to trusted source lookup and a Python API;
+then adapt the UI. Current UI exports are not this schema. No new dependencies,
+external data publication, clinical effectiveness claims or Azure provisioning.
