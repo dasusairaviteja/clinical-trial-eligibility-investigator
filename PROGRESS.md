@@ -78,3 +78,23 @@ data/contracts/ingestion 2/12). The earlier daytime increment is not repeated.
 Next: connect case construction to trusted source lookup and a Python API;
 then adapt the UI. Current UI exports are not this schema. No new dependencies,
 external data publication, clinical effectiveness claims or Azure provisioning.
+
+## Increment 004 — bounded local Python API (2026-10-03)
+
+One additional point from foundation/CI: a dependency-free local HTTP adapter
+exposes health and strict report-validation endpoints. It binds to loopback by
+default, rejects unsupported media types, transfer encoding and oversized or
+invalid bodies, uses generic non-echoing errors, suppresses request logging, and
+adds no-store/browser hardening headers. Seven integration tests exercise the
+server over TCP and preserve the existing report contract.
+
+Acceptance requires the full local and GitHub CI suites to pass. Cumulative
+weighted acceptance after those checks: 4/100 (foundation 2/8,
+data/contracts/ingestion 2/12). This standard-library adapter is explicitly not
+production hosting: authentication, TLS termination, rate limiting, durable
+audit records and Azure deployment remain unimplemented. No clinical conclusion
+is returned.
+
+Next: construct cases from a trusted server-side source registry so callers
+cannot supply both evidence and the evidence assertions being checked. The UI
+still uses its independent demo schema and is not connected to this endpoint.
