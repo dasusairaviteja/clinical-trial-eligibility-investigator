@@ -67,6 +67,23 @@ python scripts/check_repository.py
 
 See `docs/ENVIRONMENTS.md` for GitHub Actions and `PROGRESS.md` for verified progress.
 
+### Local report API
+
+Start the dependency-free development adapter:
+
+```bash
+python -m clinical_trial.api
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @examples/synthetic_case.json \
+  http://127.0.0.1:8000/v1/reports/validate
+```
+
+`GET /health` provides a local liveness check. The adapter binds to localhost,
+accepts bounded JSON, returns non-cached responses, and emits generic errors that
+do not echo submitted records. It is not a production server: it has no
+authentication, TLS, rate limiting, or durable audit storage. Use synthetic data
+only.
+
 
 ## Web workspace
 
