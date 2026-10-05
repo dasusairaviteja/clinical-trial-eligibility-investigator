@@ -4,11 +4,18 @@ This standard-library server is intentionally for local development and CI. It
 does not provide authentication, TLS, rate limiting, or production hardening.
 """
 
+import argparse
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+from pathlib import Path
+import sys
 
-from .report import CaseValidationError, MAX_INPUT_BYTES, report_from_json
+from .registry import (
+    MAX_REGISTRY_BYTES, TrustedSourceRegistry, registry_from_json,
+    report_from_registry_json,
+)
+from .report import CaseValidationError, MAX_INPUT_BYTES
 
 
 def _json_bytes(value: dict) -> bytes:
@@ -22,6 +29,7 @@ class ApiHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "TrialInvestigator"
     sys_version = ""
+    source_registry: TrustedSourceRegistry | None = None
 
     def log_message(self, format, *args):  # noqa: A002 - stdlib callback name
         """Avoid the default request log; case identifiers can be sensitive."""
@@ -80,24 +88,45 @@ class ApiHandler(BaseHTTPRequestHandler):
             self._error(HTTPStatus.BAD_REQUEST, "incomplete_request_body")
             return
         try:
-            report = report_from_json(payload)
+            report = report_from_registry_json(payload, self.source_registry)
         except CaseValidationError:
             self._error(HTTPStatus.BAD_REQUEST, "invalid_case")
             return
         self._send(HTTPStatus.OK, report)
 
 
-def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+def handler_for(registry: TrustedSourceRegistry) -> type[ApiHandler]:
+    """Bind one immutable registry to a server without global mutation."""
+    if not isinstance(registry, TrustedSourceRegistry):
+        raise ValueError("validated registry required")
+
+    class RegistryApiHandler(ApiHandler):
+        source_registry = registry
+
+    return RegistryApiHandler
+
+
+def serve(registry: TrustedSourceRegistry, host: str = "127.0.0.1",
+          port: int = 8000) -> None:
     """Serve local requests until interrupted."""
-    with ThreadingHTTPServer((host, port), ApiHandler) as server:
+    with ThreadingHTTPServer((host, port), handler_for(registry)) as server:
         server.serve_forever()
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("registry", type=Path,
+                        help="operator-controlled synthetic source registry JSON")
+    args = parser.parse_args()
     try:
-        serve()
+        with args.registry.open("rb") as stream:
+            registry = registry_from_json(stream.read(MAX_REGISTRY_BYTES + 1))
+        serve(registry)
     except KeyboardInterrupt:
         pass
+    except (OSError, CaseValidationError, ValueError):
+        print("API not started: trusted source registry is invalid.", file=sys.stderr)
+        return 2
     return 0
 
 
