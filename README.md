@@ -72,15 +72,17 @@ See `docs/ENVIRONMENTS.md` for GitHub Actions and `PROGRESS.md` for verified pro
 Start the dependency-free development adapter:
 
 ```bash
-python -m clinical_trial.api
+python -m clinical_trial.api examples/synthetic_sources.json
 curl -sS -H 'Content-Type: application/json' \
-  --data-binary @examples/synthetic_case.json \
+  --data-binary @examples/synthetic_request.json \
   http://127.0.0.1:8000/v1/reports/validate
 ```
 
 `GET /health` provides a local liveness check. The adapter binds to localhost,
-accepts bounded JSON, returns non-cached responses, and emits generic errors that
-do not echo submitted records. It is not a production server: it has no
+accepts bounded JSON, resolves exact source versions from an operator-controlled
+registry, returns non-cached responses, and emits generic errors that do not echo
+submitted records. API callers submit source references, never source text. The
+example files contain fictional synthetic data. It is not a production server: it has no
 authentication, TLS, rate limiting, or durable audit storage. Use synthetic data
 only.
 

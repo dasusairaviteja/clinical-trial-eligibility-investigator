@@ -98,3 +98,23 @@ is returned.
 Next: construct cases from a trusted server-side source registry so callers
 cannot supply both evidence and the evidence assertions being checked. The UI
 still uses its independent demo schema and is not connected to this endpoint.
+
+## Increment 005 — trusted evidence registry boundary (2026-10-04)
+
+One additional point from data/contracts/ingestion: API requests now carry only
+version-pinned source references. An immutable, operator-loaded registry resolves
+the exact synthetic patient snapshots before existing citation checks run. Strict
+registry/request parsing rejects caller-supplied text, unknown patients, missing
+or stale versions, duplicate snapshots/references, extra fields and malformed
+JSON without echoing record content. A split fictional example demonstrates the
+trust boundary without publishing real patient data.
+
+Acceptance requires five registry tests, the updated API integration suite and
+all earlier checks to pass locally and in GitHub Actions. Cumulative weighted
+acceptance after those checks: 5/100 (foundation 2/8,
+data/contracts/ingestion 3/12). This establishes provenance lookup, not semantic
+entailment, authentication, record completeness, or clinical eligibility.
+
+Next: define a trusted trial-criterion registry so both evidence and eligibility
+criteria are independently versioned rather than supplied by the caller. The UI
+remains disconnected from this research API.

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {"source_id": "intake", "patient_id": "SYN-001", "version": "v1", "text": "Age: 54 years."}
+  ]
+}

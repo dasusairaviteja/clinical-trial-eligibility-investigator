@@ -4,17 +4,20 @@ from pathlib import Path
 import threading
 import unittest
 
-from clinical_trial.api import ApiHandler
+from clinical_trial.api import handler_for
+from clinical_trial.registry import registry_from_json
 from clinical_trial.report import MAX_INPUT_BYTES
 from http.server import ThreadingHTTPServer
 
-EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "synthetic_case.json"
+EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
+REQUEST = EXAMPLES / "synthetic_request.json"
 
 
 class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), ApiHandler)
+        registry = registry_from_json((EXAMPLES / "synthetic_sources.json").read_bytes())
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), handler_for(registry))
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
         cls.host, cls.port = cls.server.server_address
@@ -43,7 +46,7 @@ class ApiTests(unittest.TestCase):
 
     def test_valid_case_returns_review_report(self):
         status, _, body = self.request(
-            "POST", "/v1/reports/validate", EXAMPLE.read_bytes(),
+            "POST", "/v1/reports/validate", REQUEST.read_bytes(),
             {"Content-Type": "application/json"})
         self.assertEqual(status, 200)
         self.assertEqual(body["status"], "human_review_required")
