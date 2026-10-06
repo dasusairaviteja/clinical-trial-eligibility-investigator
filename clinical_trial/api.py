@@ -10,12 +10,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import sys
+import sqlite3
+
+from .investigator import investigate
+from .reviews import ConflictError, ReviewStore
+from .agent import run_agent
 
 from .registry import (
     MAX_REGISTRY_BYTES, TrustedRegistry, registry_from_json,
     report_from_registry_json,
 )
-from .report import CaseValidationError, MAX_INPUT_BYTES
+from .report import CaseValidationError, MAX_INPUT_BYTES, _unique_object, _reject_constant
 
 
 def _json_bytes(value: dict) -> bytes:
@@ -30,6 +35,12 @@ class ApiHandler(BaseHTTPRequestHandler):
     server_version = "TrialInvestigator"
     sys_version = ""
     source_registry: TrustedRegistry | None = None
+    review_store: ReviewStore | None = None
+    planner_factory = None
+
+    def setup(self):
+        super().setup()
+        self.connection.settimeout(10)
 
     def log_message(self, format, *args):  # noqa: A002 - stdlib callback name
         """Avoid the default request log; case identifiers can be sensitive."""
@@ -43,6 +54,8 @@ class ApiHandler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
         self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Connection", "close")
+        self.close_connection = True
         if allow:
             self.send_header("Allow", allow)
         self.end_headers()
@@ -52,6 +65,33 @@ class ApiHandler(BaseHTTPRequestHandler):
         self._send(status, {"error": code})
 
     def do_GET(self):  # noqa: N802 - BaseHTTPRequestHandler API
+        assets = {"/": ("workspace.html", "text/html"),
+                  "/workspace.js": ("workspace.js", "text/javascript"),
+                  "/workspace.css": ("workspace.css", "text/css")}
+        if self.path in assets:
+            filename, content_type = assets[self.path]
+            body = (Path(__file__).resolve().parents[1] / "web" / filename).read_bytes()
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; object-src 'none'")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path == "/v1/demo":
+            request = json.loads((Path(__file__).resolve().parents[1] / "examples/synthetic_request.json").read_text())
+            request.pop("schema_version")
+            request.pop("findings")
+            self._send(HTTPStatus.OK, request)
+            return
+        if self.path.startswith("/v1/reports/") and self.path != "/v1/reports/validate":
+            try:
+                self._send(HTTPStatus.OK, self.review_store.get(self.path.removeprefix("/v1/reports/")))
+            except (KeyError, AttributeError):
+                self._error(HTTPStatus.NOT_FOUND, "not_found")
+            return
         if self.path == "/health":
             self._send(HTTPStatus.OK, {"status": "ok"})
             return
@@ -62,10 +102,10 @@ class ApiHandler(BaseHTTPRequestHandler):
         self._error(HTTPStatus.NOT_FOUND, "not_found")
 
     def do_POST(self):  # noqa: N802 - BaseHTTPRequestHandler API
-        if self.path != "/v1/reports/validate":
+        if self.path not in ("/v1/reports/validate", "/v1/investigate", "/v1/reviews"):
             self._error(HTTPStatus.NOT_FOUND, "not_found")
             return
-        if self.headers.get("Transfer-Encoding"):
+        if self.headers.get("Transfer-Encoding") or len(self.headers.get_all("Content-Length", [])) > 1:
             self._error(HTTPStatus.BAD_REQUEST, "unsupported_transfer_encoding")
             return
         content_type = self.headers.get_content_type()
@@ -88,28 +128,58 @@ class ApiHandler(BaseHTTPRequestHandler):
             self._error(HTTPStatus.BAD_REQUEST, "incomplete_request_body")
             return
         try:
-            report = report_from_registry_json(payload, self.source_registry)
-        except CaseValidationError:
+            if self.path == "/v1/reports/validate":
+                report = report_from_registry_json(payload, self.source_registry)
+            else:
+                if self.review_store is None:
+                    self._error(HTTPStatus.SERVICE_UNAVAILABLE, "review_storage_unavailable")
+                    return
+                request = json.loads(payload.decode("utf-8"), object_pairs_hook=_unique_object,
+                                     parse_constant=_reject_constant)
+                if type(request) is not dict:
+                    raise ValueError("object required")
+                if self.path == "/v1/investigate":
+                    if self.planner_factory is None:
+                        result = investigate(self.source_registry, request)
+                    else:
+                        planner = self.planner_factory()
+                        result = run_agent(self.source_registry, request, planner)
+                        result['execution'] = {'engine':'azure-bounded-agent', 'tool_calls':len(result['agent_trace']),
+                                               'usage':planner.usage, 'model_cost_usd':None}
+                    report = self.review_store.create(result)
+                else:
+                    if set(request) != {"identifier", "revision", "criterion_id", "verdict", "reason", "reviewer"}:
+                        raise ValueError("invalid correction fields")
+                    report = self.review_store.correct(**request)
+        except ConflictError:
+            self._error(HTTPStatus.CONFLICT, "revision_conflict")
+            return
+        except sqlite3.Error:
+            self._error(HTTPStatus.SERVICE_UNAVAILABLE, "storage_unavailable")
+            return
+        except (ValueError, TypeError, KeyError, RecursionError):
             self._error(HTTPStatus.BAD_REQUEST, "invalid_case")
             return
         self._send(HTTPStatus.OK, report)
 
 
-def handler_for(registry: TrustedRegistry) -> type[ApiHandler]:
+def handler_for(registry: TrustedRegistry, store: ReviewStore | None = None, planner=None) -> type[ApiHandler]:
     """Bind one immutable registry to a server without global mutation."""
     if not isinstance(registry, TrustedRegistry):
         raise ValueError("validated registry required")
 
     class RegistryApiHandler(ApiHandler):
         source_registry = registry
+        review_store = store
+        planner_factory = staticmethod(planner) if planner else None
 
     return RegistryApiHandler
 
 
 def serve(registry: TrustedRegistry, host: str = "127.0.0.1",
-          port: int = 8000) -> None:
+          port: int = 8000, store: ReviewStore | None = None, planner=None) -> None:
     """Serve local requests until interrupted."""
-    with ThreadingHTTPServer((host, port), handler_for(registry)) as server:
+    with ThreadingHTTPServer((host, port), handler_for(registry, store, planner)) as server:
         server.serve_forever()
 
 
@@ -117,11 +187,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("registry", type=Path,
                         help="operator-controlled synthetic source registry JSON")
+    parser.add_argument('--azure-model', action='store_true', help='Enable paid model calls using configured environment variables')
     args = parser.parse_args()
     try:
         with args.registry.open("rb") as stream:
             registry = registry_from_json(stream.read(MAX_REGISTRY_BYTES + 1))
-        serve(registry)
+        data_directory = Path("local-data")
+        data_directory.mkdir(exist_ok=True)
+        planner = None
+        if args.azure_model:
+            from .azure_planner import AzurePlanner
+            AzurePlanner.from_environment()  # Validate once before binding.
+            planner = AzurePlanner.from_environment
+        serve(registry, store=ReviewStore(data_directory / "reviews.db"), planner=planner)
     except KeyboardInterrupt:
         pass
     except (OSError, CaseValidationError, ValueError):
