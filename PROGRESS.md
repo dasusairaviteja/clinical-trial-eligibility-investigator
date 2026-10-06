@@ -118,3 +118,21 @@ entailment, authentication, record completeness, or clinical eligibility.
 Next: define a trusted trial-criterion registry so both evidence and eligibility
 criteria are independently versioned rather than supplied by the caller. The UI
 remains disconnected from this research API.
+
+## Increment 006 — trusted versioned trial criteria (2026-10-05)
+
+One additional point from data/contracts/ingestion: the trusted registry now owns
+versioned trial snapshots and their ordered inclusion/exclusion criteria. API
+requests provide only a trial ID/version reference plus findings; caller-provided
+criterion wording, polarity, membership and ordering are rejected as extra input.
+Unknown or stale trial versions, duplicate trial snapshots, cross-trial criteria
+and duplicate criterion IDs fail closed before a report is generated.
+
+Acceptance requires the expanded registry and API suites plus all prior checks to
+pass locally and in GitHub Actions. Cumulative weighted acceptance after those
+checks: 6/100 (foundation 2/8, data/contracts/ingestion 4/12). The fictional
+example registry is not current ClinicalTrials.gov data, and no claim of semantic
+criterion parsing, recruitment status, or clinical eligibility is made.
+
+Next: add a deterministic, provenance-preserving criterion ingestion transform
+for public trial records, with explicit snapshot dates and parser failure output.

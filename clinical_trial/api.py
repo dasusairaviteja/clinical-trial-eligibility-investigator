@@ -12,7 +12,7 @@ from pathlib import Path
 import sys
 
 from .registry import (
-    MAX_REGISTRY_BYTES, TrustedSourceRegistry, registry_from_json,
+    MAX_REGISTRY_BYTES, TrustedRegistry, registry_from_json,
     report_from_registry_json,
 )
 from .report import CaseValidationError, MAX_INPUT_BYTES
@@ -29,7 +29,7 @@ class ApiHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "TrialInvestigator"
     sys_version = ""
-    source_registry: TrustedSourceRegistry | None = None
+    source_registry: TrustedRegistry | None = None
 
     def log_message(self, format, *args):  # noqa: A002 - stdlib callback name
         """Avoid the default request log; case identifiers can be sensitive."""
@@ -95,9 +95,9 @@ class ApiHandler(BaseHTTPRequestHandler):
         self._send(HTTPStatus.OK, report)
 
 
-def handler_for(registry: TrustedSourceRegistry) -> type[ApiHandler]:
+def handler_for(registry: TrustedRegistry) -> type[ApiHandler]:
     """Bind one immutable registry to a server without global mutation."""
-    if not isinstance(registry, TrustedSourceRegistry):
+    if not isinstance(registry, TrustedRegistry):
         raise ValueError("validated registry required")
 
     class RegistryApiHandler(ApiHandler):
@@ -106,7 +106,7 @@ def handler_for(registry: TrustedSourceRegistry) -> type[ApiHandler]:
     return RegistryApiHandler
 
 
-def serve(registry: TrustedSourceRegistry, host: str = "127.0.0.1",
+def serve(registry: TrustedRegistry, host: str = "127.0.0.1",
           port: int = 8000) -> None:
     """Serve local requests until interrupted."""
     with ThreadingHTTPServer((host, port), handler_for(registry)) as server:
