@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "seed": 42,
+  "status": "protocol_only_model_runs_not_executed",
+  "arms": ["rules", "standard_rag", "uncontrolled_agent", "bounded_agent", "without_temporal", "without_missing_evidence_control"],
+  "matched_budget": {"max_model_calls_per_case": 8, "max_input_tokens_per_case": 16000, "max_output_tokens_per_case": 4000, "retrieval_k": 5},
+  "split_unit": "both_patient_and_trial_disjoint",
+  "primary_metric": "false_no_barrier_rate",
+  "required_secondary_metrics": ["coverage", "macro_f1", "evidence_accuracy", "mean_latency_ms", "total_cost_usd"],
+  "uncertainty": "patient_cluster_bootstrap_95pct_seed_42",
+  "required_artifacts": ["model_deployment_version", "prompt_sha256", "dataset_sha256", "config_sha256", "predictions", "expert_label_review", "failed_cases", "token_usage"],
+  "publication_status": "unproven"
+}

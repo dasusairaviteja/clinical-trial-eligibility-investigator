@@ -9,3 +9,7 @@ __pycache__/
 *.zip
 data/raw/
 web/local-trials.json
+local-data/
+*.db
+*.db-shm
+*.db-wal

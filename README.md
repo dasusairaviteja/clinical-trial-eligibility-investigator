@@ -38,7 +38,18 @@ incorrect eligibility assertions compared with ordinary RAG.
 
 ## Status
 
-Implementation authorized for routine automatic delivery. Initial environment foundation is available; clinical functionality is not implemented yet.
+Research prototype with an integrated local workflow and tested backend components.
+Production deployment and clinical research acceptance are incomplete; see PROGRESS.md.
+
+### Integrated research workspace
+
+Run `python -m clinical_trial.api examples/synthetic_sources.json` and open
+http://127.0.0.1:8000 for the integrated case investigation, evidence report,
+durable reviewer corrections and JSON audit export. The default engine is an
+offline rules baseline. The single bounded agent can use the optional Azure
+planner with `--azure-model`; live model behavior has not yet been verified.
+See `docs/OPERATIONS.md` for setup, recovery and production gates, and
+`docs/RESEARCH_RELEASE.md` for experiment acceptance requirements.
 
 
 ## Environments

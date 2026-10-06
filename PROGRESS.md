@@ -136,3 +136,22 @@ criterion parsing, recruitment status, or clinical eligibility is made.
 
 Next: add a deterministic, provenance-preserving criterion ingestion transform
 for public trial records, with explicit snapshot dates and parser failure output.
+
+## Accelerated implementation — 2026-10-06
+
+The user requested full delivery, superseding the one-point-per-day pace.
+Added conservative criterion parsing, numerical/calendar tools, a bounded single
+agent and mock-tested Azure planner, offline investigation, a connected local web
+workspace, transactional SQLite corrections/audit export, backup recovery tests,
+and an evaluation harness with leakage checks and patient bootstrap uncertainty.
+No secrets or patient dataset contents were added. Implementation is AI-assisted.
+
+74 local Python tests pass. Both JavaScript syntax checks, compileall, repository
+hygiene and whitespace checks pass. Browser QA was attempted but Chromium launch
+and download failed. Live Azure/model checks were not run.
+
+After CI passes, weighted accepted progress is 27/100 (+21), with exact allocation
+and outstanding gates in docs/ACCEPTANCE.md. This is NOT 100/100. Additional code,
+production validation, expert labels and reproducible research experiments remain.
+Next: production service/authentication and executable matched-baseline runners;
+do not keep creating one-point registry-only increments.
