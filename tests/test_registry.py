@@ -26,7 +26,8 @@ class RegistryTests(unittest.TestCase):
         self.assertNotIn("sources", report)
 
     def test_caller_cannot_supply_or_override_source_text(self):
-        for extra in ({"sources": []}, {"text": "Age: 99"}):
+        for extra in ({"sources": []}, {"text": "Age: 99"}, {"criteria": []},
+                      {"trial_id": "CALLER-TRIAL"}):
             with self.subTest(extra=extra), self.assertRaises(CaseValidationError):
                 self.report({**self.request, **extra})
 
@@ -52,9 +53,31 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaises(CaseValidationError):
             registry_from_json(json.dumps(value).encode())
 
+    def test_trial_snapshot_is_version_pinned_and_operator_controlled(self):
+        report = self.report()
+        self.assertEqual([item["criterion_id"] for item in report["criteria"]],
+                         ["age", "admission"])
+        self.assertEqual(report["trial_id"], "DEMO-TRIAL-001")
+        for field, value in (("trial_id", "missing"),
+                             ("trial_version", "stale-version")):
+            request = copy.deepcopy(self.request)
+            request["trial_ref"][field] = value
+            with self.subTest(field=field), self.assertRaises(CaseValidationError):
+                self.report(request)
+
+    def test_duplicate_trial_and_criterion_snapshots_fail_closed(self):
+        value = json.loads(REGISTRY.read_text())
+        value["trials"] *= 2
+        with self.assertRaises(CaseValidationError):
+            registry_from_json(json.dumps(value).encode())
+        value = json.loads(REGISTRY.read_text())
+        value["trials"][0]["criteria"] *= 2
+        with self.assertRaises(CaseValidationError):
+            registry_from_json(json.dumps(value).encode())
+
     def test_registry_parser_is_strict_and_non_echoing(self):
-        for payload in (b'{"schema_version":1,"sources":[],"private":"MARKER"}',
-                        b'{"schema_version":1,"schema_version":1,"sources":[]}'):
+        for payload in (b'{"schema_version":1,"sources":[],"trials":[],"private":"MARKER"}',
+                        b'{"schema_version":1,"schema_version":1,"sources":[],"trials":[]}'):
             with self.subTest(payload=payload), self.assertRaises(CaseValidationError) as caught:
                 registry_from_json(payload)
             self.assertNotIn("MARKER", str(caught.exception))

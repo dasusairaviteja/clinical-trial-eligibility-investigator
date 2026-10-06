@@ -2,5 +2,15 @@
   "schema_version": 1,
   "sources": [
     {"source_id": "intake", "patient_id": "SYN-001", "version": "v1", "text": "Age: 54 years."}
+  ],
+  "trials": [
+    {
+      "trial_id": "DEMO-TRIAL-001",
+      "version": "2026-10-01",
+      "criteria": [
+        {"criterion_id": "age", "trial_id": "DEMO-TRIAL-001", "kind": "inclusion", "statement": "Age over 18 years"},
+        {"criterion_id": "admission", "trial_id": "DEMO-TRIAL-001", "kind": "exclusion", "statement": "Hospital admission in the preceding 30 days"}
+      ]
+    }
   ]
 }

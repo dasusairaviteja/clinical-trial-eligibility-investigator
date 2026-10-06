@@ -79,10 +79,11 @@ curl -sS -H 'Content-Type: application/json' \
 ```
 
 `GET /health` provides a local liveness check. The adapter binds to localhost,
-accepts bounded JSON, resolves exact source versions from an operator-controlled
-registry, returns non-cached responses, and emits generic errors that do not echo
-submitted records. API callers submit source references, never source text. The
-example files contain fictional synthetic data. It is not a production server: it has no
+accepts bounded JSON, resolves exact evidence and trial-criterion versions from
+an operator-controlled registry, returns non-cached responses, and emits generic
+errors that do not echo submitted records. API callers submit source and trial
+references, never source text or criterion definitions. The example files contain
+fictional synthetic data. It is not a production server: it has no
 authentication, TLS, rate limiting, or durable audit storage. Use synthetic data
 only.
 
