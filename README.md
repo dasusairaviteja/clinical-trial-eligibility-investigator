@@ -1,7 +1,7 @@
 # Clinical Trial Eligibility Investigator
 
-**Research project** — a single tool-using AI agent that investigates and verifies
-whether a patient is eligible for a clinical trial.
+**Research screening support** — a single bounded tool-using AI agent that
+produces criterion-level evidence for human review. It does not decide eligibility.
 
 ## What it does
 
@@ -21,7 +21,7 @@ incorrect eligibility assertions compared with ordinary RAG.
 
 ## Key constraints
 
-- **No real patient data.** Synthetic records only (Synthea). Nothing here is
+- **No real patient data.** Synthetic records only. The current observation adapter is a project schema; FHIR/Synthea support is pending. Nothing here is
   medical advice; every output is a draft for qualified human review.
 - **Secrets** (API keys, Azure credentials) live in `.env`, which is gitignored
   and never committed.
@@ -111,7 +111,9 @@ Open http://localhost:8080. This is a local development server, not production
 hosting. The responsive interface supports case selection, search/filtering,
 evidence inspection, browser-local reviewer notes/history, and JSON export.
 The screening case results are authored fictional examples, not model output.
-There is no authentication or clinical backend yet; use synthetic records only.
+This legacy static preview has no authentication or clinical backend. For the
+connected authenticated workspace, use docs/AUTHENTICATED_RUNTIME.md. Use synthetic
+records only in either mode.
 
 ### User-provided trial archive
 
@@ -127,3 +129,10 @@ No claim is made that these studies are currently recruiting. Archive licensing
 and redistribution terms remain unverified; do not publish the dataset.
 
 Reviewed browser-local notes are not a secure or immutable audit trail.
+
+## Milestone 50
+
+See [acceptance evidence](docs/MILESTONE_50.md), [authenticated runtime](docs/AUTHENTICATED_RUNTIME.md),
+[data preparation](docs/DATA_PREPARATION.md) and [acceptance ledger](docs/ACCEPTANCE.md).
+The runtime and research runners are tested locally. There is no deployed Azure
+application URL, live model result or clinical efficacy claim.

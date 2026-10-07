@@ -6,16 +6,22 @@ the former one-point daily target no longer limits implementation.
 
 | Workstream | Total | Accepted after this PR passes | Evidence and remaining gate |
 |---|---:|---:|---|
-| Foundation/CI | 8 | 3 | Prior environment/API work (2); workspace CI and reproducible local execution (1). Packaging and production runtime pending. |
-| Data/contracts/ingestion | 12 | 6 | Prior contracts/registries (4); conservative line parser with dates, hashes and source offsets (2). FHIR/Synthea adapter and live trial ingestion pending. |
-| Baselines/evaluation | 12 | 3 | Polarity-aware metrics (1), leakage validator (1), cluster bootstrap (1). Executable matched RAG/uncontrolled baselines and real evaluation pending. |
-| Agent/tools | 18 | 6 | Bounded injected-planner loop (2), validated tool dispatcher (2), mock-tested Azure adapter (2). Live provider acceptance and broader tasks pending. |
-| Temporal/missing evidence | 14 | 3 | Calendar boundaries (1), explicit negative coverage (1), unit/missing-value checks (1). End-to-end temporal evidence binding and clinical cases pending. |
-| Reviewer UI/reports | 10 | 3 | Integrated API investigation/report view (1), transactional corrections (1), export/audit access (1). Browser/accessibility QA and authenticated reviewer flow pending. |
-| Security/reliability/observability | 10 | 2 | Request guards and allowlisted routes (1), tested SQLite backup and rollback/conflict behavior (1). Production auth, monitoring and load testing pending. |
+| Foundation/CI | 8 | 6 | Hash-pinned Gunicorn runtime, reproducible install and real runtime CI smoke (+3); container deployment still pending. |
+| Data/contracts/ingestion | 12 | 9 | Offline trial mapping, explicit reviewed promotion and synthetic observation adapter (+3); FHIR/Synthea and live ingestion pending. |
+| Baselines/evaluation | 12 | 6 | Executable research arms, common operational caps and paired-case checks (+3); live runs, token matching and expert adjudication pending. |
+| Agent/tools | 18 | 9 | Ranked chunk retrieval, context/deadline controls and enforced source-bound check dispatch (+3); live provider and broader tasks pending. |
+| Temporal/missing evidence | 14 | 7 | Source-bound threshold/date/unit and event coverage/conflict controls (+4); clinical validation and broader temporal language pending. |
+| Reviewer UI/reports | 10 | 5 | Token access and latest-reviewer-assertion display with DOM contracts (+2); real browser/accessibility QA pending. |
+| Security/reliability/observability | 10 | 6 | Individual auth, rate/capacity limits, privacy-preserving telemetry and adversarial request tests (+4); TLS proxy, identity federation and load/security testing pending. |
 | Azure deployment/recovery | 8 | 1 | Verified offline backup/restore CLI and audit integrity checks (1). Azure deployment and cloud recovery remain unaccepted. |
 | Experiments/research release | 8 | 1 | Reproducible experiment protocol and explicit release gates (1). Expert labels, literature review, executed experiments and manuscript pending. |
-| **Total** | **100** | **28** | **72 points remain unaccepted.** |
+| **Total** | **100** | **50** | **50 points remain unaccepted.** |
+
+## Milestone 50 — 2026-10-06
+
+See MILESTONE_50.md for the 22-point acceptance breakdown, exact checks and
+remaining limits. Acceptance requires CI success on this milestone commit.
+108 Python tests, DOM contracts and real Gunicorn smoke pass locally.
 
 ## Recovery increment — 2026-10-06
 

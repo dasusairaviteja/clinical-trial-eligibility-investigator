@@ -1,3 +1,12 @@
+# Milestone 50 — 2026-10-06
+
+Added 22 weighted software acceptance points; cumulative 50/100 after CI passes.
+See docs/MILESTONE_50.md for per-item evidence and remaining requirements.
+Validation: 108 Python tests, workspace DOM contracts, actual Gunicorn process
+smoke, offline rules runner, compilation, JS syntax, hygiene and whitespace checks.
+No paid calls, resources or clinical data. No browser acceptance claimed.
+Next: deployment packaging, browser QA, live ingestion and experiment ablations.
+
 # Implementation progress
 
 ## Increment 001 — environment foundation (2026-10-01)
