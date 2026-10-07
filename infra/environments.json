@@ -1,0 +1,5 @@
+{
+  "ENG": {"resource_group": "rg-triallens-eng", "vm_name": "triallens-eng"},
+  "TEST": {"resource_group": "rg-triallens-test", "vm_name": "triallens-test"},
+  "PROD": {"resource_group": "rg-triallens-prod", "vm_name": "triallens-prod"}
+}

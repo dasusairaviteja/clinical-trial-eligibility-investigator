@@ -1,3 +1,12 @@
+# Milestone 75 — 2026-10-07
+
+Target acceptance: +20 points after all PR checks pass; cumulative 75/100.
+136 Python tests and DOM contracts pass. Container/Chromium/Bicep checks are CI
+gates, not assumed successes. Local Chromium download failed; Docker/Bicep unavailable.
+Added FHIR subset, dated age/ranges, provider budgets, paired-data preparation,
+request replay, report history/print export, packaging and private Azure templates.
+No Azure resources or paid models invoked. See docs/MILESTONE_75.md for scope/limits.
+
 # Milestone 55 — 2026-10-06
 
 Added five research-workflow acceptance points; cumulative 55/100 after passing CI.

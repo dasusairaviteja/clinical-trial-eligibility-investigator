@@ -1,0 +1,13 @@
+**
+!Dockerfile
+!requirements.txt
+!gunicorn.conf.py
+!clinical_trial/
+!clinical_trial/*.py
+!web/
+!web/workspace.html
+!web/workspace.js
+!web/workspace.css
+!examples/
+!examples/synthetic_sources.json
+!examples/synthetic_request.json

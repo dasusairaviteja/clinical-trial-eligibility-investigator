@@ -71,6 +71,15 @@ class WsgiTests(unittest.TestCase):
         request['research_ablation']='without_missing_evidence_control'
         self.assertEqual(self.call('/v1/investigate',request)['status'],400)
 
+    def test_idempotent_investigation_and_history(self):
+        request=self.call('/v1/demo')['body']
+        key={'HTTP_IDEMPOTENCY_KEY':'test-request-key-123'}
+        first=self.call('/v1/investigate',request,**key)
+        second=self.call('/v1/investigate',request,**key)
+        self.assertEqual(first['body']['id'],second['body']['id'])
+        self.assertEqual(len(self.call('/v1/reports')['body']['reports']),1)
+        self.assertEqual(self.call('/v1/export/'+first['body']['id'])['status'],200)
+
     def test_no_sensitive_request_data_in_telemetry(self):
         with self.assertLogs('trial.requests',level='INFO') as logs:
             result = self.call('/v1/reports/secret-patient-id')

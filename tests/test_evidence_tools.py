@@ -7,6 +7,15 @@ from clinical_trial.retrieval import retrieve
 
 
 class EvidenceToolTests(unittest.TestCase):
+    def test_dated_age_and_inclusive_range(self):
+        record={'schema':'synthetic-observation-v1','patient_id':'p','source_id':'s','version':'v1',
+                'type':'measurement','name':'age','date':'2026-10-06','value':'18','unit':'years'}
+        source=synthetic_source(record,synthetic_attested=True)
+        self.assertEqual(check(self.criterion('Age at least 18 years on 2026-10-06'),[source])['verdict'],'supported')
+        self.assertEqual(check(self.criterion('Age at least 18 years on 2026-10-07'),[source])['verdict'],'unknown')
+        for bounds,expected in [('18 and 65','supported'),('19 and 65','contradicted'),('65 and 18','unknown')]:
+            self.assertEqual(check(self.criterion('Measurement age between '+bounds+' years on 2026-10-06'),[source])['verdict'],expected)
+
     def criterion(self,text):
         return Criterion('c1','trial',CriterionKind.EXCLUSION,text)
 

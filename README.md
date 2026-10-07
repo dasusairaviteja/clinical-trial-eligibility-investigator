@@ -142,3 +142,8 @@ application URL, live model result or clinical efficacy claim.
 [Research control regression](docs/MILESTONE_55.md) adds executable ablations,
 paired comparisons and a synthetic study artifact. These are software checks,
 not clinical performance results.
+
+## Milestone 75
+
+See [acceptance scope](docs/MILESTONE_75.md) and [deployment preparation](docs/DEPLOYMENT.md).
+No Azure application URL exists yet; the infrastructure templates are preparation artifacts.

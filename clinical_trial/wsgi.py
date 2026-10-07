@@ -9,6 +9,7 @@ import hmac
 import json
 import logging
 import os
+import re
 from pathlib import Path
 import sqlite3
 import threading
@@ -102,6 +103,11 @@ class Application:
             if count > self.rate_limit:
                 return 429, {"error": "rate_limit"}, mime
         if method == "GET":
+            if path.startswith('/v1/export/'):
+                from .export import html_report
+                return 200,html_report(self.store.get(path.removeprefix('/v1/export/'))),'text/html; charset=utf-8'
+            if path == '/v1/reports':
+                return 200, {'reports':self.store.list_reports()}, mime
             if path == "/v1/me":
                 return 200, {"reviewer": identity}, mime
             if path == "/v1/demo":
@@ -138,7 +144,17 @@ class Application:
             return 200, self.store.correct(**request), mime
         if not self.active.acquire(blocking=False):
             return 503, {"error": "investigation_capacity"}, mime
+        reservation=None
         try:
+            key=env.get('HTTP_IDEMPOTENCY_KEY')
+            if key is not None:
+                if not re.fullmatch(r'[A-Za-z0-9_-]{16,128}',key):
+                    raise ValueError('invalid idempotency key')
+                digest=hashlib.sha256(json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+                prior=self.store.reserve(identity,key,digest)
+                if prior:
+                    return 200,self.store.get(prior),mime
+                reservation=(identity,key,digest)
             if self.planner:
                 planner = self.planner()
                 result = run_agent(self.registry, request, planner)
@@ -146,7 +162,11 @@ class Application:
                                        "usage": planner.usage, "model_cost_usd": None}
             else:
                 result = investigate(self.registry, request)
-            return 200, self.store.create(result), mime
+            return 200, self.store.create(result,request_identity=reservation), mime
+        except Exception:
+            if reservation:
+                self.store.release(*reservation)
+            raise
         finally:
             self.active.release()
 

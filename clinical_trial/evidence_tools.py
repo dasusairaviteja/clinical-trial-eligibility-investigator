@@ -5,6 +5,7 @@ All numerical thresholds and event windows come from the trusted criterion,
 never from planner-supplied arguments. Completeness is an operator assertion.
 """
 from datetime import date
+from decimal import Decimal
 import json
 import re
 from .tools import numerical, temporal, calendar_months_before
@@ -16,7 +17,16 @@ def check(criterion, sources, *, research_ablation=None):
     result = {"criterion_id":criterion.criterion_id,"verdict":"unknown",
               "citations":[],"missing_information":["Unsupported rule or missing, conflicting, invalid evidence."]}
     age = re.fullmatch(r"Age (over|at least|under|at most) ([0-9]+) years",criterion.statement)
-    measurement = re.fullmatch(r"Measurement ([A-Za-z0-9_-]+) (gt|gte|lt|lte|eq) ([0-9]+(?:\.[0-9]+)?) (\S+) on (\d{4}-\d{2}-\d{2})",criterion.statement)
+    dated_age=re.fullmatch(r'Age (over|at least|under|at most) ([0-9]+) years on (\d{4}-\d{2}-\d{2})',criterion.statement)
+    statement=criterion.statement
+    if dated_age:
+        operator={'over':'gt','at least':'gte','under':'lt','at most':'lte'}[dated_age[1]]
+        statement=f'Measurement age {operator} {dated_age[2]} years on {dated_age[3]}'
+    interval=re.fullmatch(r'Measurement ([A-Za-z0-9_-]+) between ([0-9]+(?:\.[0-9]+)?) and ([0-9]+(?:\.[0-9]+)?) (\S+) on (\d{4}-\d{2}-\d{2})',statement)
+    if interval:
+        if Decimal(interval[2])>Decimal(interval[3]):return result
+        statement=f'Measurement {interval[1]} gte {interval[2]} {interval[4]} on {interval[5]}'
+    measurement = re.fullmatch(r"Measurement ([A-Za-z0-9_-]+) (gt|gte|lt|lte|eq) ([0-9]+(?:\.[0-9]+)?) (\S+) on (\d{4}-\d{2}-\d{2})",statement)
     event = re.fullmatch(r"Event ([A-Za-z0-9_-]+) within ([0-9]+) months before (\d{4}-\d{2}-\d{2})",criterion.statement)
     matches = []
     for source in sources:
@@ -33,6 +43,9 @@ def check(criterion, sources, *, research_ablation=None):
                     date.fromisoformat(measurement[5])
                     if record.get('date') != measurement[5] and research_ablation != 'without_temporal': continue
                     verdict = numerical(record.get('value'),measurement[2],measurement[3],record.get('unit'),measurement[4])
+                    if interval:
+                        upper=numerical(record.get('value'),'lte',interval[3],record.get('unit'),measurement[4])
+                        verdict='unknown' if 'unknown' in (verdict,upper) else ('supported' if verdict==upper=='supported' else 'contradicted')
                 elif event and record.get('type') == 'event_history' and record.get('name') == event[1]:
                     dates = record.get('events')
                     if not isinstance(dates,list): continue

@@ -27,6 +27,10 @@ class ReviewStore:
                 sequence INTEGER PRIMARY KEY AUTOINCREMENT,
                 report_id TEXT NOT NULL REFERENCES reports(id),
                 body TEXT NOT NULL, previous_hash TEXT NOT NULL, hash TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS requests (
+                owner TEXT NOT NULL, request_key TEXT NOT NULL, digest TEXT NOT NULL,
+                report_id TEXT REFERENCES reports(id),
+                PRIMARY KEY(owner, request_key));
             """)
 
     def connect(self):
@@ -35,15 +39,46 @@ class ReviewStore:
         db.execute("PRAGMA foreign_keys = ON")
         return db
 
-    def create(self, report):
+    def create(self, report, *, request_identity=None):
         identifier = uuid.uuid4().hex
         with closing(self.connect()) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            if request_identity:
+                owner,key,digest=request_identity
+                row=db.execute('SELECT digest,report_id FROM requests WHERE owner=? AND request_key=?',(owner,key)).fetchone()
+                if row is None or row[0]!=digest or row[1] is not None:
+                    raise ConflictError('request reservation changed')
             db.execute("INSERT INTO reports VALUES (?, ?, 0)",
                        (identifier, json.dumps(report, allow_nan=False)))
             self._event(db, identifier, {"action": "created", "revision": 0,
                                        "report_sha256": hashlib.sha256(
                                            json.dumps(report, sort_keys=True).encode()).hexdigest()})
+            if request_identity:
+                db.execute('UPDATE requests SET report_id=? WHERE owner=? AND request_key=?',(identifier,owner,key))
         return self.get(identifier)
+
+    def reserve(self, owner, key, digest):
+        """Reserve a caller-scoped request; unresolved reservations fail closed."""
+        with closing(self.connect()) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute('SELECT digest,report_id FROM requests WHERE owner=? AND request_key=?',(owner,key)).fetchone()
+            if row:
+                if row[0]!=digest or row[1] is None:
+                    raise ConflictError('request changed or still in progress')
+                return row[1]
+            db.execute('INSERT INTO requests VALUES (?,?,?,NULL)',(owner,key,digest))
+        return None
+
+    def release(self, owner, key, digest):
+        with closing(self.connect()) as db, db:
+            db.execute('DELETE FROM requests WHERE owner=? AND request_key=? AND digest=? AND report_id IS NULL',(owner,key,digest))
+
+    def list_reports(self, limit=20):
+        if type(limit) is not int or not 1<=limit<=100:
+            raise ValueError('limit must be 1..100')
+        with closing(self.connect()) as db:
+            rows=db.execute('SELECT id,revision FROM reports ORDER BY rowid DESC LIMIT ?',(limit,)).fetchall()
+        return [{'id':identifier,'revision':revision} for identifier,revision in rows]
 
     def get(self, identifier):
         with closing(self.connect()) as db:

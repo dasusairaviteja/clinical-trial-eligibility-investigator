@@ -36,7 +36,7 @@ paths, patient identifiers, body, credential and exception details. Correlate
 client `X-Request-ID` with logs; 429/503 responses include Retry-After. On storage
 errors, stop writes and follow OPERATIONS.md. Capacity errors can be retried;
 do not automatically retry an investigation after an ambiguous network failure
-because idempotency support is not yet implemented.
+unless you supplied the same Idempotency-Key: the authenticated API now replays a completed saved request for the same reviewer and body. Pending/conflicting requests return 409.
 
 Gunicorn documentation and MIT license checked during implementation:
 - https://gunicorn.org/reference/settings/
