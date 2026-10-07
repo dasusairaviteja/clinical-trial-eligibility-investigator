@@ -34,3 +34,13 @@ must be converted to this format using independently reviewed labels.
 Standard RAG and uncontrolled-agent experimental runners remain unimplemented;
 their protocol entries are not executable baselines or measured results.
 No model experiment, expert review or publication claim has been completed.
+# Milestone 50 runner update
+
+`python -m clinical_trial.experiments` now executes rules, standard RAG,
+uncontrolled-agent and bounded-agent arms. Model arms require an explicit
+`--allow-paid-model` flag and configured Azure credentials. Runners enforce common
+call/context ceilings and retain usage, measured latency, input hashes and raw
+reports. Unknown cost stays null. Fixture tests validate execution paths; no live
+model comparison has been run. The protocol's token-matching and ablation gates
+are still pending; do not equate byte caps with token matching. Evidence correctness
+must be independently adjudicated before passing rows to the evaluation module.
