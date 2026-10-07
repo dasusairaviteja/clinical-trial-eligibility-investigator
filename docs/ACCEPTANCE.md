@@ -6,16 +6,22 @@ the former one-point daily target no longer limits implementation.
 
 | Workstream | Total | Accepted after this PR passes | Evidence and remaining gate |
 |---|---:|---:|---|
-| Foundation/CI | 8 | 6 | Hash-pinned Gunicorn runtime, reproducible install and real runtime CI smoke (+3); container deployment still pending. |
-| Data/contracts/ingestion | 12 | 9 | Offline trial mapping, explicit reviewed promotion and synthetic observation adapter (+3); FHIR/Synthea and live ingestion pending. |
-| Baselines/evaluation | 12 | 8 | Executable arms plus paired outcome comparisons and patient-cluster delta intervals; live runs, token matching and expert adjudication pending. |
-| Agent/tools | 18 | 9 | Ranked chunk retrieval, context/deadline controls and enforced source-bound check dispatch (+3); live provider and broader tasks pending. |
-| Temporal/missing evidence | 14 | 9 | Source-bound controls plus independently tested temporal and missing-evidence research ablations; clinical validation and broader temporal language pending. |
-| Reviewer UI/reports | 10 | 5 | Token access and latest-reviewer-assertion display with DOM contracts (+2); real browser/accessibility QA pending. |
-| Security/reliability/observability | 10 | 6 | Individual auth, rate/capacity limits, privacy-preserving telemetry and adversarial request tests (+4); TLS proxy, identity federation and load/security testing pending. |
-| Azure deployment/recovery | 8 | 1 | Verified offline backup/restore CLI and audit integrity checks (1). Azure deployment and cloud recovery remain unaccepted. |
-| Experiments/research release | 8 | 2 | Protocol/release gates and executed scripted synthetic control study (2). Expert labels, literature review, executed experiments and manuscript pending. |
-| **Total** | **100** | **55** | **45 points remain unaccepted.** |
+| Foundation/CI | 8 | 8 | Container build and isolated runtime smoke; production base-image digest pin remains an operational gate. |
+| Data/contracts/ingestion | 12 | 11 | Synthetic FHIR Observation subset with provenance/rejection controls; live ingestion acceptance remains. |
+| Baselines/evaluation | 12 | 10 | Component-disjoint assignment and exact adjudication joins; live token-matched and expert-adjudicated evaluation remains. |
+| Agent/tools | 18 | 12 | Reported usage, completion/call caps and sanitized provider failure categories; broader/live model acceptance remains. |
+| Temporal/missing evidence | 14 | 11 | Dated age and inclusive measurement ranges added; broader temporal language and clinical validation remain. |
+| Reviewer UI/reports | 10 | 8 | Saved history, escaped printable reports and Chromium workflow/mobile smoke; accessibility and broader usability acceptance remain. |
+| Security/reliability/observability | 10 | 8 | Caller-scoped durable request replay and concurrent reservation controls; independent security/load review remains. |
+| Azure deployment/recovery | 8 | 4 | Local recovery plus compiled VM template, environment separation and budget-gated what-if/deployment command; no live cloud deployment. |
+| Experiments/research release | 8 | 3 | Protocol, synthetic regression and deterministic release inventory; actual research conclusions and manuscript remain. |
+| **Total** | **100** | **75** | **25 points remain unaccepted.** |
+
+## Milestone 75 — 2026-10-07
+
+Twenty additional points are conditional on all PR checks passing, including actual
+Chromium/container smoke and Bicep compilation in GitHub CI. See MILESTONE_75.md.
+Local Python suite: 136 passing tests. No live deployment or clinical result claimed.
 
 ## Milestone 55 — 2026-10-06
 
