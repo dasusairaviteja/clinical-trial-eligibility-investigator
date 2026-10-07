@@ -7,10 +7,12 @@ never from planner-supplied arguments. Completeness is an operator assertion.
 from datetime import date
 import json
 import re
-from .tools import numerical, temporal
+from .tools import numerical, temporal, calendar_months_before
 
 
-def check(criterion, sources):
+def check(criterion, sources, *, research_ablation=None):
+    if research_ablation not in (None, 'without_temporal', 'without_missing_evidence_control'):
+        raise ValueError('unknown ablation')
     result = {"criterion_id":criterion.criterion_id,"verdict":"unknown",
               "citations":[],"missing_information":["Unsupported rule or missing, conflicting, invalid evidence."]}
     age = re.fullmatch(r"Age (over|at least|under|at most) ([0-9]+) years",criterion.statement)
@@ -29,12 +31,23 @@ def check(criterion, sources):
                 if record.get('patient_id') != source.patient_id: continue
                 if measurement and record.get('type') == 'measurement' and record.get('name') == measurement[1]:
                     date.fromisoformat(measurement[5])
-                    if record.get('date') != measurement[5]: continue
+                    if record.get('date') != measurement[5] and research_ablation != 'without_temporal': continue
                     verdict = numerical(record.get('value'),measurement[2],measurement[3],record.get('unit'),measurement[4])
                 elif event and record.get('type') == 'event_history' and record.get('name') == event[1]:
                     dates = record.get('events')
                     if not isinstance(dates,list): continue
+                    calendar_months_before(date.fromisoformat(event[3]),int(event[2]))
+                    lower,upper=record.get('complete_since'),record.get('complete_through')
+                    if (lower is None) != (upper is None): continue
+                    if lower is not None and date.fromisoformat(lower)>date.fromisoformat(upper): continue
                     verdict = temporal(dates,event[3],int(event[2]),record.get('complete_since'),record.get('complete_through'))
+                    # Deliberately weakened research controls. Production callers
+                    # never pass this flag; malformed dates are still rejected.
+                    for day in dates: date.fromisoformat(day)
+                    if research_ablation == 'without_temporal' and dates:
+                        verdict = 'supported'
+                    elif research_ablation == 'without_missing_evidence_control' and verdict == 'unknown':
+                        verdict = 'contradicted'
                 else: continue
                 matches.append((source,0,len(source.text),verdict))
             except (ValueError,TypeError,AttributeError):

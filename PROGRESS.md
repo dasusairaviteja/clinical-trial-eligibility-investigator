@@ -1,3 +1,14 @@
+# Milestone 55 — 2026-10-06
+
+Added five research-workflow acceptance points; cumulative 55/100 after passing CI.
+Implemented isolated temporal/missing-evidence ablations, paired metrics and seeded
+patient-cluster intervals. Executed and committed a six-case synthetic control
+study with a scripted planner (not an LLM experiment). 117 Python tests and DOM
+checks pass. Runtime smoke initially blocked by missing Gunicorn; reinstall of the
+hash-pinned dependency resolved it and the smoke rerun passed. The comparison CLI,
+compilation, hygiene and whitespace checks also pass. See docs/MILESTONE_55.md.
+Next: deployment packaging and browser QA; live model/clinical validation remain.
+
 # Milestone 50 — 2026-10-06
 
 Added 22 weighted software acceptance points; cumulative 50/100 after CI passes.

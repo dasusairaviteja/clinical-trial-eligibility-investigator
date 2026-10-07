@@ -136,3 +136,9 @@ See [acceptance evidence](docs/MILESTONE_50.md), [authenticated runtime](docs/AU
 [data preparation](docs/DATA_PREPARATION.md) and [acceptance ledger](docs/ACCEPTANCE.md).
 The runtime and research runners are tested locally. There is no deployed Azure
 application URL, live model result or clinical efficacy claim.
+
+## Milestone 55
+
+[Research control regression](docs/MILESTONE_55.md) adds executable ablations,
+paired comparisons and a synthetic study artifact. These are software checks,
+not clinical performance results.

@@ -13,7 +13,9 @@ from .evidence_tools import check
 from .retrieval import retrieve
 
 
-def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, deadline_seconds=120, *, enforce_evidence=True):
+def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, deadline_seconds=120, *, enforce_evidence=True, research_ablation=None):
+    if research_ablation not in (None, 'without_temporal', 'without_missing_evidence_control'):
+        raise ValueError('unknown ablation')
     if type(max_steps) is not int or not 1 <= max_steps <= 20:
         raise ValueError("step budget must be between 1 and 20")
     if type(max_context_bytes) is not int or not 100<=max_context_bytes<=100000 or not 0<deadline_seconds<=180:
@@ -58,7 +60,7 @@ def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, 
             elif tool == 'check':
                 if set(args) != {'criterion_id'}: raise ValueError('invalid check')
                 criterion = next(c for c in trial.criteria if c.criterion_id == args['criterion_id'])
-                result = check(criterion,sources)
+                result = check(criterion,sources,research_ablation=research_ablation)
             elif tool == "numerical":
                 result = numerical(**args)
             elif tool == "temporal":
@@ -72,7 +74,7 @@ def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, 
                                   tuple(args["missing_information"]))
                 validate_finding(criterion, finding, request["patient_id"], sources)
                 if enforce_evidence and finding.verdict != Verdict.UNKNOWN:
-                    verified = check(criterion,sources)
+                    verified = check(criterion,sources,research_ablation=research_ablation)
                     if args != verified:
                         raise ValueError('non-unknown assertions require exact source-bound rule evidence')
                 findings[criterion.criterion_id] = json.loads(json.dumps(args))
@@ -88,6 +90,7 @@ def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, 
                          "findings": list(findings.values())}).encode(), registry)
     report["trial_version"] = trial.version
     report["agent_trace"] = trace
+    report['research_ablation'] = research_ablation
     report["semantic_validation"] = ("narrow_source_bound_grammar_only; unsupported_criteria_abstain" if enforce_evidence
                                      else "research_baseline_without_evidence_gate")
     return report

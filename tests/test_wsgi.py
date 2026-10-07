@@ -66,6 +66,11 @@ class WsgiTests(unittest.TestCase):
         self.assertEqual(self.call('/v1/investigate',{}, HTTP_TRANSFER_ENCODING='chunked')['status'],400)
         self.assertEqual(self.call('/v1/investigate',[])['status'],400)
 
+    def test_client_cannot_enable_research_ablation(self):
+        request=self.call('/v1/demo')['body']
+        request['research_ablation']='without_missing_evidence_control'
+        self.assertEqual(self.call('/v1/investigate',request)['status'],400)
+
     def test_no_sensitive_request_data_in_telemetry(self):
         with self.assertLogs('trial.requests',level='INFO') as logs:
             result = self.call('/v1/reports/secret-patient-id')
