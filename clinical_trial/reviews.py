@@ -6,6 +6,7 @@ import hashlib
 import json
 import sqlite3
 import uuid
+from pathlib import Path
 
 
 class ConflictError(ValueError):
@@ -13,8 +14,11 @@ class ConflictError(ValueError):
 
 
 class ReviewStore:
-    def __init__(self, path):
+    def __init__(self, path, *, read_only=False):
         self.path = str(path)
+        self.read_only = read_only
+        if read_only:
+            return
         with closing(self.connect()) as db, db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS reports (
@@ -26,7 +30,8 @@ class ReviewStore:
             """)
 
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=5)
+        target = Path(self.path).resolve().as_uri() + "?mode=ro" if self.read_only else self.path
+        db = sqlite3.connect(target, timeout=5, uri=self.read_only)
         db.execute("PRAGMA foreign_keys = ON")
         return db
 
@@ -85,3 +90,38 @@ class ReviewStore:
     def backup(self, target):
         with closing(self.connect()) as source, closing(sqlite3.connect(str(target))) as destination:
             source.backup(destination)
+
+    def verify(self):
+        """Check SQLite integrity, event links, revisions and original report hashes.
+
+        Detects accidental/tampered content, but a database administrator can
+        rewrite the whole chain. Export hashes to independent storage for anchoring.
+        """
+        with closing(self.connect()) as db:
+            db.execute("BEGIN")
+            if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise ValueError("database integrity failed")
+            if db.execute("PRAGMA foreign_key_check").fetchall():
+                raise ValueError("foreign key integrity failed")
+            reports = db.execute("SELECT id, body, revision FROM reports").fetchall()
+            anchors = {}
+            for identifier, body, revision in reports:
+                if type(revision) is not int or revision < 0:
+                    raise ValueError("invalid stored revision")
+                events = db.execute("SELECT body,previous_hash,hash FROM events WHERE report_id=? ORDER BY sequence", (identifier,)).fetchall()
+                if len(events) != revision + 1:
+                    raise ValueError("revision history incomplete")
+                previous = "0" * 64
+                for index, (event_body, link, digest) in enumerate(events):
+                    if link != previous or hashlib.sha256((link + event_body).encode()).hexdigest() != digest:
+                        raise ValueError("audit chain invalid")
+                    event = json.loads(event_body)
+                    if event["revision"] != index:
+                        raise ValueError("audit revision invalid")
+                    if index == 0 and (event["action"] != "created" or event["report_sha256"] != hashlib.sha256(json.dumps(json.loads(body), sort_keys=True).encode()).hexdigest()):
+                        raise ValueError("original report invalid")
+                    if index > 0 and event["action"] != "correction":
+                        raise ValueError("audit action invalid")
+                    previous = digest
+                anchors[identifier] = previous
+        return {"reports": len(reports), "anchors": anchors}

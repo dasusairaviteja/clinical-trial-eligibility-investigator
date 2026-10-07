@@ -155,3 +155,13 @@ and outstanding gates in docs/ACCEPTANCE.md. This is NOT 100/100. Additional cod
 production validation, expert labels and reproducible research experiments remain.
 Next: production service/authentication and executable matched-baseline runners;
 do not keep creating one-point registry-only increments.
+# Recovery increment — 2026-10-06
+
+- Added verified offline backup/restore and audit integrity CLI.
+- Read-only source access, exclusive destination creation, owner-only permissions,
+  integrity/hash/revision checks, and failed-output cleanup.
+- Validation: 83 Python tests passed (nine new recovery tests).
+- Accepted progress after CI: +1 point, cumulative 28/100.
+- Azure deployment, authenticated production runtime, browser QA, remaining data
+  adapters, baseline runs and research validation remain incomplete.
+- Next: finish and test the authentication/runtime drafts, then deployment artifacts.

@@ -13,9 +13,18 @@ the former one-point daily target no longer limits implementation.
 | Temporal/missing evidence | 14 | 3 | Calendar boundaries (1), explicit negative coverage (1), unit/missing-value checks (1). End-to-end temporal evidence binding and clinical cases pending. |
 | Reviewer UI/reports | 10 | 3 | Integrated API investigation/report view (1), transactional corrections (1), export/audit access (1). Browser/accessibility QA and authenticated reviewer flow pending. |
 | Security/reliability/observability | 10 | 2 | Request guards and allowlisted routes (1), tested SQLite backup and rollback/conflict behavior (1). Production auth, monitoring and load testing pending. |
-| Azure deployment/recovery | 8 | 0 | No provisioned/deployed application or tested infrastructure artifact. |
+| Azure deployment/recovery | 8 | 1 | Verified offline backup/restore CLI and audit integrity checks (1). Azure deployment and cloud recovery remain unaccepted. |
 | Experiments/research release | 8 | 1 | Reproducible experiment protocol and explicit release gates (1). Expert labels, literature review, executed experiments and manuscript pending. |
-| **Total** | **100** | **27** | **73 points remain unaccepted.** |
+| **Total** | **100** | **28** | **72 points remain unaccepted.** |
+
+## Recovery increment — 2026-10-06
+
+One additional point is accepted after this increment passes CI. All 83 Python
+tests pass locally, including nine recovery tests covering round-trip restoration,
+tampering, deleted history, overwrite prevention, partial-output cleanup,
+concurrent source changes and read-only source access. This does not establish
+cloud recovery, production readiness or externally anchored audit immutability.
+Unfinished local WSGI/authentication drafts are excluded from this increment.
 
 ## Verification recorded for this change
 
