@@ -69,3 +69,25 @@ Official references checked 2026-10-06:
 
 No third-party runtime dependency or new external dataset is introduced here.
 Dataset redistribution licensing and clinical expert labeling remain unresolved.
+# Verified offline recovery
+
+Stop the API before performing these commands. Backup and restore refuse to
+overwrite existing files. Keep backups and printed audit anchors in private,
+independently controlled storage; never commit them to GitHub.
+
+```sh
+python -m clinical_trial.recovery verify local-data/reviews.db
+python -m clinical_trial.recovery backup local-data/reviews.db local-data/backup.db
+python -m clinical_trial.recovery restore local-data/backup.db local-data/restored.db
+python -m clinical_trial.recovery verify local-data/restored.db
+```
+
+After successful verification, preserve the old database and replace the configured
+database with the restored file while the API is stopped. Restart and confirm a
+known report and its correction history can be retrieved. The local API currently
+uses `local-data/reviews.db`. The backup tool opens sources read-only, checks
+SQLite integrity and report/event hashes, and deletes partial output on failure.
+Concurrent writes can make verification fail: stop writes and retry into a new
+destination. A rewritten full hash chain cannot be detected without an independent
+anchor. These are local recovery checks, not a cloud recovery drill or clinical
+validation. No recovery time objective has been measured.
