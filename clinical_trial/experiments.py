@@ -13,7 +13,8 @@ from .evidence_tools import check
 from .registry import SourceReference, TrialReference, registry_from_json, report_from_registry_json
 from .retrieval import retrieve
 
-ARMS = ('rules','standard_rag','uncontrolled_agent','bounded_agent')
+ABLATIONS = ('without_temporal','without_missing_evidence_control')
+ARMS = ('rules','standard_rag','uncontrolled_agent','bounded_agent') + ABLATIONS
 BASELINE_PROMPT = ('Return exactly one JSON object with tool and arguments. Use the tools listed in instructions. '
                    'For submit use criterion_id, verdict (supported|contradicted|unknown), citations '
                    '({source_id,source_version,start,end,quote}) and missing_information. '
@@ -40,10 +41,11 @@ def run_arm(arm, registry, request, planner=None, calls=8, context_bytes=50000):
         raise ValueError('invalid context cap')
     started = time.perf_counter()
     bounded = BudgetedPlanner(planner,calls,context_bytes)
-    if arm in ('uncontrolled_agent','bounded_agent'):
+    if arm in ('uncontrolled_agent','bounded_agent') + ABLATIONS:
         if planner is None: raise ValueError('model planner required')
         report = run_agent(registry,request,bounded,max_steps=calls,max_context_bytes=context_bytes,
-                           enforce_evidence=arm=='bounded_agent')
+                           enforce_evidence=arm!='uncontrolled_agent',
+                           research_ablation=arm if arm in ABLATIONS else None)
     else:
         trial = registry.resolve_trial(TrialReference(**request['trial_ref']))
         sources = registry.resolve_sources(request['patient_id'],tuple(SourceReference(**r) for r in request['source_refs']))
@@ -105,7 +107,7 @@ def main():
         if not args.allow_paid_model: parser.error('model arms require --allow-paid-model')
         from .azure_planner import AzurePlanner
         planner = AzurePlanner.from_environment()
-        if args.arm != 'bounded_agent': planner.system_prompt = BASELINE_PROMPT
+        if args.arm in ('standard_rag','uncontrolled_agent'): planner.system_prompt = BASELINE_PROMPT
     result = run_arm(args.arm,registry,request,planner)
     result['registry_sha256'] = hashlib.sha256(raw).hexdigest()
     result['request_sha256'] = hashlib.sha256(json.dumps(request,sort_keys=True).encode()).hexdigest()

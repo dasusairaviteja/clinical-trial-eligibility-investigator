@@ -1,0 +1,315 @@
+{
+  "study_type": "synthetic_control_regression_with_scripted_planner",
+  "label_source": "authored_fixture_expectations_not_clinical_adjudication",
+  "evidence_correct_definition": "fixture label agreement only; not expert evidence accuracy",
+  "fixture_sha256": "0ab398e1c6c3ffe58ea277a18914123bb37a0d28ab12c71f7315fcf4e9ddc33d",
+  "seed": 42,
+  "model_calls": 0,
+  "predictions": {
+    "bounded_agent": [
+      {
+        "patient_id": "SYN-recent_event",
+        "trial_id": "SYN-TRIAL-recent_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "supported",
+        "predicted": "supported",
+        "evidence_correct": true,
+        "latency_ms": 0.7607370000073388,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-old_event",
+        "trial_id": "SYN-TRIAL-old_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.2344920000041384,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-future_event",
+        "trial_id": "SYN-TRIAL-future_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.2287980000232892,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-missing_history",
+        "trial_id": "SYN-TRIAL-missing_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "unknown",
+        "evidence_correct": true,
+        "latency_ms": 0.5175410000219927,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-partial_history",
+        "trial_id": "SYN-TRIAL-partial_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "unknown",
+        "evidence_correct": true,
+        "latency_ms": 0.1713699999754681,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-complete_absence",
+        "trial_id": "SYN-TRIAL-complete_absence",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.17571899996937645,
+        "cost_usd": 0
+      }
+    ],
+    "without_temporal": [
+      {
+        "patient_id": "SYN-recent_event",
+        "trial_id": "SYN-TRIAL-recent_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "supported",
+        "predicted": "supported",
+        "evidence_correct": true,
+        "latency_ms": 0.23928899997827102,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-old_event",
+        "trial_id": "SYN-TRIAL-old_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "supported",
+        "evidence_correct": false,
+        "latency_ms": 0.1801650000174959,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-future_event",
+        "trial_id": "SYN-TRIAL-future_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "supported",
+        "evidence_correct": false,
+        "latency_ms": 0.4320769999708318,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-missing_history",
+        "trial_id": "SYN-TRIAL-missing_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "unknown",
+        "evidence_correct": true,
+        "latency_ms": 0.13720599997668614,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-partial_history",
+        "trial_id": "SYN-TRIAL-partial_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "unknown",
+        "evidence_correct": true,
+        "latency_ms": 0.13462600003322223,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-complete_absence",
+        "trial_id": "SYN-TRIAL-complete_absence",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.2373080000097616,
+        "cost_usd": 0
+      }
+    ],
+    "without_missing_evidence_control": [
+      {
+        "patient_id": "SYN-recent_event",
+        "trial_id": "SYN-TRIAL-recent_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "supported",
+        "predicted": "supported",
+        "evidence_correct": true,
+        "latency_ms": 0.307783999971889,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-old_event",
+        "trial_id": "SYN-TRIAL-old_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.17978100004256703,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-future_event",
+        "trial_id": "SYN-TRIAL-future_event",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.18273300003102122,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-missing_history",
+        "trial_id": "SYN-TRIAL-missing_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "contradicted",
+        "evidence_correct": false,
+        "latency_ms": 0.1892749999683474,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-partial_history",
+        "trial_id": "SYN-TRIAL-partial_history",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "unknown",
+        "predicted": "contradicted",
+        "evidence_correct": false,
+        "latency_ms": 0.17540000004601097,
+        "cost_usd": 0
+      },
+      {
+        "patient_id": "SYN-complete_absence",
+        "trial_id": "SYN-TRIAL-complete_absence",
+        "criterion_id": "event",
+        "kind": "exclusion",
+        "gold": "contradicted",
+        "predicted": "contradicted",
+        "evidence_correct": true,
+        "latency_ms": 0.16020300000718635,
+        "cost_usd": 0
+      }
+    ]
+  },
+  "comparisons": {
+    "without_temporal": {
+      "direction": "candidate_minus_reference",
+      "paired_criteria": 6,
+      "patient_clusters": 6,
+      "reference": {
+        "n": 6,
+        "macro_f1": 0.6666666666666666,
+        "coverage": 0.6666666666666666,
+        "false_no_barrier_count": 0,
+        "no_barrier_assertion_count": 1,
+        "false_no_barrier_rate": 0.0,
+        "evidence_accuracy": 0.5,
+        "mean_latency_ms": 0.22677849999771146,
+        "total_cost_usd": 0
+      },
+      "candidate": {
+        "n": 6,
+        "macro_f1": 1.0,
+        "coverage": 0.6666666666666666,
+        "false_no_barrier_count": 0,
+        "no_barrier_assertion_count": 3,
+        "false_no_barrier_rate": 0.0,
+        "evidence_accuracy": 1.0,
+        "mean_latency_ms": 0.34810950000026725,
+        "total_cost_usd": 0
+      },
+      "delta": {
+        "accuracy": 0.33333333333333337,
+        "coverage": 0.0,
+        "false_no_barrier_per_criterion": 0.0
+      },
+      "patient_bootstrap_95pct": {
+        "accuracy": [
+          0.0,
+          0.6666666666666667
+        ],
+        "coverage": [
+          0.0,
+          0.0
+        ],
+        "false_no_barrier_per_criterion": [
+          0.0,
+          0.0
+        ]
+      },
+      "seed": 42,
+      "repetitions": 1000,
+      "limitations": "Patient clustering does not model shared-trial dependence; no causal or clinical claim."
+    },
+    "without_missing_evidence_control": {
+      "direction": "candidate_minus_reference",
+      "paired_criteria": 6,
+      "patient_clusters": 6,
+      "reference": {
+        "n": 6,
+        "macro_f1": 0.5833333333333334,
+        "coverage": 1.0,
+        "false_no_barrier_count": 2,
+        "no_barrier_assertion_count": 5,
+        "false_no_barrier_rate": 0.4,
+        "evidence_accuracy": 0.6666666666666666,
+        "mean_latency_ms": 0.19919600001117033,
+        "total_cost_usd": 0
+      },
+      "candidate": {
+        "n": 6,
+        "macro_f1": 1.0,
+        "coverage": 0.6666666666666666,
+        "false_no_barrier_count": 0,
+        "no_barrier_assertion_count": 3,
+        "false_no_barrier_rate": 0.0,
+        "evidence_accuracy": 1.0,
+        "mean_latency_ms": 0.34810950000026725,
+        "total_cost_usd": 0
+      },
+      "delta": {
+        "accuracy": 0.33333333333333337,
+        "coverage": -0.33333333333333337,
+        "false_no_barrier_per_criterion": -0.3333333333333333
+      },
+      "patient_bootstrap_95pct": {
+        "accuracy": [
+          0.0,
+          0.6666666666666667
+        ],
+        "coverage": [
+          -0.6666666666666667,
+          0.0
+        ],
+        "false_no_barrier_per_criterion": [
+          -0.6666666666666666,
+          0.0
+        ]
+      },
+      "seed": 42,
+      "repetitions": 1000,
+      "limitations": "Patient clustering does not model shared-trial dependence; no causal or clinical claim."
+    }
+  },
+  "limitations": "Engineered fixtures test controls. No LLM, clinical efficacy, novelty or publication evidence."
+}
