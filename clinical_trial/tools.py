@@ -1,6 +1,6 @@
 """Deterministic screening tools. Missing data never establishes absence."""
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 import calendar
 
@@ -46,3 +46,22 @@ def temporal(events: list[str], as_of: str, months: int,
     except (ValueError, TypeError, OverflowError):
         pass
     return "unknown"
+
+
+def temporal_days(events, as_of, days, complete_since=None, complete_through=None):
+    """Inclusive elapsed-day window, distinct from calendar-month arithmetic."""
+    try:
+        if type(days) is not int or not 0 <= days <= 36600:
+            return 'unknown'
+        end = date.fromisoformat(as_of)
+        start = end - timedelta(days=days)
+        dates = [date.fromisoformat(event) for event in events]
+        if any(start <= event <= end for event in dates):
+            return 'supported'
+        if (complete_since and complete_through and
+                date.fromisoformat(complete_since) <= start and
+                date.fromisoformat(complete_through) >= end):
+            return 'contradicted'
+    except (ValueError, TypeError, OverflowError):
+        pass
+    return 'unknown'

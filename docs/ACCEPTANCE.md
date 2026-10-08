@@ -9,13 +9,22 @@ the former one-point daily target no longer limits implementation.
 | Foundation/CI | 8 | 8 | Container build and isolated runtime smoke; production base-image digest pin remains an operational gate. |
 | Data/contracts/ingestion | 12 | 11 | Synthetic FHIR Observation subset with provenance/rejection controls; live ingestion acceptance remains. |
 | Baselines/evaluation | 12 | 10 | Component-disjoint assignment and exact adjudication joins; live token-matched and expert-adjudicated evaluation remains. |
-| Agent/tools | 18 | 13 | Reported usage, completion/call caps and sanitized provider failure categories; broader/live model acceptance remains. |
-| Temporal/missing evidence | 14 | 12 | Dated age and inclusive measurement ranges added; broader temporal language and clinical validation remain. |
+| Agent/tools | 18 | 14 | Reported usage, completion/call caps and sanitized provider failure categories; broader/live model acceptance remains. |
+| Temporal/missing evidence | 14 | 13 | Dated age and inclusive measurement ranges added; broader temporal language and clinical validation remain. |
 | Reviewer UI/reports | 10 | 9 | Saved history, escaped printable reports and Chromium workflow/mobile smoke; accessibility and broader usability acceptance remain. |
 | Security/reliability/observability | 10 | 9 | Caller-scoped durable request replay and concurrent reservation controls; independent security/load review remains. |
 | Azure deployment/recovery | 8 | 4 | Local recovery plus compiled VM template, environment separation and budget-gated what-if/deployment command; no live cloud deployment. |
 | Experiments/research release | 8 | 3 | Protocol, synthetic regression and deterministic release inventory; actual research conclusions and manuscript remain. |
-| **Total** | **100** | **79** | **21 points remain unaccepted.** |
+| **Total** | **100** | **81** | **19 points remain unaccepted.** |
+
+## Local research completion increment — 2026-10-08
+
+Two points are conditional on this PR passing CI and merging: bounded explicit
+all/any rule composition (agent/tools +1), and source-bound elapsed-day windows
+(temporal +1). Existing month/measurement and polarity contracts remain enforced.
+See LOCAL_COMPLETION.md for the complete increment, verification and remaining
+acceptance gates. Cohort/review tooling and manuscript preparation are useful
+software deliverables, not completed model studies or clinical validation.
 
 ## Release hardening — 2026-10-08
 

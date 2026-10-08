@@ -202,3 +202,11 @@ consistent audit snapshots, in-flight UI session isolation, automated accessibil
 scans and a real-runtime concurrent-request probe. See docs/RELEASE_HARDENING.md.
 Local: 141 Python tests, DOM contracts and Gunicorn smoke/concurrency passed.
 Actual Azure/model/clinical acceptance remains blocked; 100/100 is not claimed.
+
+## 2026-10-08 — Local research workflow (81/100 after CI/merge)
+
+Delivered trial snapshots, day-window and compound rule checks, cohort execution,
+blinded adjudication handoff, null-preserving cost reporting and research methods
+documentation. Live snapshot NCT02993146 fetched successfully, but kept private
+and unapproved. See docs/LOCAL_COMPLETION.md for evidence and remaining gates.
+User deferred access/environment/secret configuration. No paid calls or resources.

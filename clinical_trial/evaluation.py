@@ -25,6 +25,8 @@ def evaluate(rows):
         if type(row["evidence_correct"]) is not bool:
             raise ValueError("evidence accuracy requires explicit adjudication")
         for field in ("latency_ms", "cost_usd"):
+            if field == 'cost_usd' and row[field] is None:
+                continue  # Unknown billing must stay unknown, never become zero.
             if type(row[field]) not in (int, float) or not 0 <= row[field] < float('inf'):
                 raise ValueError("invalid measured cost or latency")
     scores = []
@@ -44,7 +46,8 @@ def evaluate(rows):
             "false_no_barrier_rate": false_assertions/len(assertions) if assertions else None,
             "evidence_accuracy": sum(r["evidence_correct"] for r in definitive)/len(definitive) if definitive else None,
             "mean_latency_ms": sum(r["latency_ms"] for r in rows)/len(rows),
-            "total_cost_usd": sum(r["cost_usd"] for r in rows)}
+            "total_cost_usd": None if any(r['cost_usd'] is None for r in rows) else sum(r["cost_usd"] for r in rows),
+            "unpriced_predictions": sum(r['cost_usd'] is None for r in rows)}
 
 
 def validate_disjoint(splits):
