@@ -152,3 +152,9 @@ No Azure application URL exists yet; the infrastructure templates are preparatio
 
 See [verified work and remaining gates](docs/RELEASE_HARDENING.md). Completion is
 79/100 only after this change passes CI; the remaining 21 points are not claimed.
+
+## Local research workflow
+
+See [local commands](docs/LOCAL_RESEARCH_WORKFLOW.md), [completion evidence](docs/LOCAL_COMPLETION.md)
+and [research methods draft](docs/RESEARCH_MANUSCRIPT.md). The latest ledger is
+[ACCEPTANCE.md](docs/ACCEPTANCE.md); older milestone numbers above are historical.

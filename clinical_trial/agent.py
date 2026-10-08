@@ -6,6 +6,7 @@ An actual model adapter is required for model-backed experiments.
 
 import json
 import time
+import math
 from .contracts import Citation, Finding, Verdict, validate_finding
 from .registry import SourceReference, TrialReference, report_from_registry_json
 from .tools import numerical, temporal
@@ -18,7 +19,9 @@ def run_agent(registry, request, planner, max_steps=8, max_context_bytes=50000, 
         raise ValueError('unknown ablation')
     if type(max_steps) is not int or not 1 <= max_steps <= 20:
         raise ValueError("step budget must be between 1 and 20")
-    if type(max_context_bytes) is not int or not 100<=max_context_bytes<=100000 or not 0<deadline_seconds<=180:
+    if (type(max_context_bytes) is not int or not 100<=max_context_bytes<=100000 or
+            type(deadline_seconds) not in (int, float) or not math.isfinite(deadline_seconds) or
+            not 0<deadline_seconds<=180):
         raise ValueError('invalid context or deadline budget')
     started = time.monotonic()
     if set(request) != {"case_id", "patient_id", "trial_ref", "source_refs"}:

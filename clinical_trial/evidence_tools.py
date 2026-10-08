@@ -4,11 +4,12 @@ These grammars are deliberately explicit; unsupported clinical language abstains
 All numerical thresholds and event windows come from the trusted criterion,
 never from planner-supplied arguments. Completeness is an operator assertion.
 """
-from datetime import date
+from datetime import date, timedelta
+from dataclasses import replace
 from decimal import Decimal
 import json
 import re
-from .tools import numerical, temporal, calendar_months_before
+from .tools import numerical, temporal, temporal_days, calendar_months_before
 from .report import _unique_object, _reject_constant
 
 
@@ -17,6 +18,34 @@ def check(criterion, sources, *, research_ablation=None):
         raise ValueError('unknown ablation')
     result = {"criterion_id":criterion.criterion_id,"verdict":"unknown",
               "citations":[],"missing_information":["Unsupported rule or missing, conflicting, invalid evidence."]}
+    # Explicit reviewer-authored composition, never an inferred rewrite of prose.
+    compound = re.fullmatch(r'(All|Any) of: (\[.*\])', criterion.statement)
+    if compound:
+        try:
+            statements = json.loads(compound[2])
+            if not 2 <= len(statements) <= 8 or any(
+                    not isinstance(s, str) or len(s) > 2000 or
+                    s.startswith(('All of:', 'Any of:')) for s in statements):
+                return result
+            children = [check(replace(criterion, statement=s), sources,
+                              research_ablation=research_ablation) for s in statements]
+            decisive = 'contradicted' if compound[1] == 'All' else 'supported'
+            selected = [child for child in children if child['verdict'] == decisive]
+            if selected:
+                verdict = decisive
+            elif any(child['verdict'] == 'unknown' for child in children):
+                return result
+            else:
+                verdict = 'supported' if compound[1] == 'All' else 'contradicted'
+                selected = children
+            citations = []
+            for child in selected:
+                for citation in child['citations']:
+                    if citation not in citations:
+                        citations.append(citation)
+            return {**result, 'verdict': verdict, 'citations': citations, 'missing_information': []}
+        except (ValueError, TypeError, RecursionError):
+            return result
     age = re.fullmatch(r"Age (over|at least|under|at most) ([0-9]+) years",criterion.statement)
     dated_age=re.fullmatch(r'Age (over|at least|under|at most) ([0-9]+) years on (\d{4}-\d{2}-\d{2})',criterion.statement)
     statement=criterion.statement
@@ -28,7 +57,7 @@ def check(criterion, sources, *, research_ablation=None):
         if Decimal(interval[2])>Decimal(interval[3]):return result
         statement=f'Measurement {interval[1]} gte {interval[2]} {interval[4]} on {interval[5]}'
     measurement = re.fullmatch(r"Measurement ([A-Za-z0-9_-]+) (gt|gte|lt|lte|eq) ([0-9]+(?:\.[0-9]+)?) (\S+) on (\d{4}-\d{2}-\d{2})",statement)
-    event = re.fullmatch(r"Event ([A-Za-z0-9_-]+) within ([0-9]+) months before (\d{4}-\d{2}-\d{2})",criterion.statement)
+    event = re.fullmatch(r"Event ([A-Za-z0-9_-]+) within ([0-9]+) (months|days) before (\d{4}-\d{2}-\d{2})",criterion.statement)
     matches = []
     for source in sources:
         if age:
@@ -42,6 +71,7 @@ def check(criterion, sources, *, research_ablation=None):
                 if record.get('schema') != 'synthetic-observation-v1': continue
                 if record.get('patient_id') != source.patient_id: return result
                 if measurement and record.get('type') == 'measurement' and record.get('name') == measurement[1]:
+                    if not isinstance(record.get('value'), str): return result
                     date.fromisoformat(measurement[5])
                     # A valid older observation is irrelevant, but a malformed
                     # date must not be discarded in favor of convenient evidence.
@@ -54,11 +84,17 @@ def check(criterion, sources, *, research_ablation=None):
                 elif event and record.get('type') == 'event_history' and record.get('name') == event[1]:
                     dates = record.get('events')
                     if not isinstance(dates,list): return result
-                    calendar_months_before(date.fromisoformat(event[3]),int(event[2]))
+                    as_of, window = event[4], int(event[2])
+                    if event[3] == 'months':
+                        calendar_months_before(date.fromisoformat(as_of), window)
+                    else:
+                        if not 0 <= window <= 36600: return result
+                        date.fromisoformat(as_of) - timedelta(days=window)
                     lower,upper=record.get('complete_since'),record.get('complete_through')
                     if (lower is None) != (upper is None): return result
                     if lower is not None and date.fromisoformat(lower)>date.fromisoformat(upper): return result
-                    verdict = temporal(dates,event[3],int(event[2]),record.get('complete_since'),record.get('complete_through'))
+                    checker = temporal if event[3] == 'months' else temporal_days
+                    verdict = checker(dates,as_of,window,record.get('complete_since'),record.get('complete_through'))
                     # Deliberately weakened research controls. Production callers
                     # never pass this flag; malformed dates are still rejected.
                     for day in dates: date.fromisoformat(day)
@@ -68,7 +104,7 @@ def check(criterion, sources, *, research_ablation=None):
                         verdict = 'contradicted'
                 else: continue
                 matches.append((source,0,len(source.text),verdict))
-            except (ValueError,TypeError,AttributeError,RecursionError):
+            except (ValueError,TypeError,AttributeError,RecursionError,OverflowError):
                 # Unparseable JSON cannot safely be classified as irrelevant.
                 # Plain narrative is allowed, but malformed structured records
                 # block definitive assertions until reviewed.

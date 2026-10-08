@@ -7,7 +7,7 @@ Passing tests is not evidence that the research hypothesis holds.
 
 - Single bounded agent with retrieval, numerical, temporal and submission tools.
 - Exact citation provenance checks and unknown-on-failure behavior.
-- Reproducible local rules baseline for a deliberately narrow age-rule grammar.
+- Reproducible local rules baseline for explicit source-bound measurement, age and event rules.
 - Evaluation CLI: `python -m clinical_trial.evaluation predictions.json`.
 - Polarity-aware false no-barrier assertions, coverage, macro-F1, adjudicated
   evidence accuracy, latency, cost and patient-cluster bootstrap uncertainty.
@@ -31,8 +31,8 @@ must be converted to this format using independently reviewed labels.
 7. Compare against TrialGPT and other relevant prior work through a dated,
    reproducible literature review before claiming novelty.
 
-Standard RAG and uncontrolled-agent experimental runners remain unimplemented;
-their protocol entries are not executable baselines or measured results.
+Standard RAG and uncontrolled-agent runners are implemented; they have not yet
+produced live, adjudicated research results.
 No model experiment, expert review or publication claim has been completed.
 # Milestone 50 runner update
 
@@ -44,3 +44,6 @@ reports. Unknown cost stays null. Fixture tests validate execution paths; no liv
 model comparison has been run. The protocol's token-matching and ablation gates
 are still pending; do not equate byte caps with token matching. Evidence correctness
 must be independently adjudicated before passing rows to the evaluation module.
+
+Batch execution and blinded review handoff are described in LOCAL_RESEARCH_WORKFLOW.md.
+RESEARCH_MANUSCRIPT.md is an evidence-limited methods draft and initial bibliography.
