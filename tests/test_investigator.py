@@ -31,3 +31,22 @@ class InvestigatorTests(unittest.TestCase):
         self.data["sources"][0]["text"] = "Age: 54 years. Age: 20 years."
         registry = registry_from_json(json.dumps(self.data).encode())
         self.assertEqual(investigate(registry, self.request)["criteria"][0]["verdict"], "unknown")
+
+    def test_structured_temporal_rule_runs_offline(self):
+        self.data['trials'][0]['criteria'][0]['statement'] = 'Event stroke within 6 months before 2026-10-06'
+        source = self.data['sources'][0]
+        source['text'] = json.dumps({'schema': 'synthetic-observation-v1',
+            'patient_id': source['patient_id'], 'type': 'event_history', 'name': 'stroke',
+            'events': [], 'complete_since': '2026-04-06', 'complete_through': '2026-10-06'})
+        registry = registry_from_json(json.dumps(self.data).encode())
+        report = investigate(registry, self.request, max_tool_calls=1)
+        self.assertEqual(report['criteria'][0]['verdict'], 'contradicted')
+        self.assertEqual(report['criteria'][1]['verdict'], 'unknown')
+        self.assertEqual(report['execution']['tool_calls'], 1)
+        self.assertEqual(report['execution']['model_calls'], 0)
+
+    def test_invalid_budget_is_rejected(self):
+        registry = registry_from_json(json.dumps(self.data).encode())
+        for budget in [-1, True, 1.5, 501]:
+            with self.assertRaises(ValueError):
+                investigate(registry, self.request, max_tool_calls=budget)

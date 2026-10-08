@@ -7,6 +7,36 @@ from clinical_trial.retrieval import retrieve
 
 
 class EvidenceToolTests(unittest.TestCase):
+    def test_malformed_record_cannot_be_hidden_by_valid_record(self):
+        criterion = self.criterion('Event stroke within 6 months before 2026-10-06')
+        valid = self.source(events=['2026-06-01'])
+        base = json.loads(valid.text)
+        malformed = [
+            '{"schema":',
+            json.dumps({**base, 'events': '2026-06-01'}),
+            json.dumps({**base, 'events': ['invalid']}),
+            json.dumps({**base, 'complete_since': '2026-01-01'}),
+            json.dumps({**base, 'patient_id': 'different-patient'}),
+            valid.text[:-1] + ', "events": []}',
+        ]
+        for text in malformed:
+            bad = SourceDocument('bad', valid.patient_id, 'v1', text)
+            for sources in ([valid, bad], [bad, valid]):
+                with self.subTest(text=text, first=sources[0].source_id):
+                    result = check(criterion, sources)
+                    self.assertEqual(result['verdict'], 'unknown')
+                    self.assertEqual(result['citations'], [])
+
+    def test_valid_older_measurement_is_irrelevant_but_invalid_date_blocks(self):
+        record = {'schema': 'synthetic-observation-v1', 'patient_id': 'p',
+                  'type': 'measurement', 'name': 'age', 'date': '2026-10-06',
+                  'value': '18', 'unit': 'years'}
+        valid = SourceDocument('valid', 'p', 'v1', json.dumps(record))
+        criterion = self.criterion('Age at least 18 years on 2026-10-06')
+        for day, verdict in [('2026-10-05', 'supported'), ('invalid', 'unknown')]:
+            other = SourceDocument('other', 'p', 'v1', json.dumps({**record, 'date': day}))
+            self.assertEqual(check(criterion, [valid, other])['verdict'], verdict)
+
     def test_dated_age_and_inclusive_range(self):
         record={'schema':'synthetic-observation-v1','patient_id':'p','source_id':'s','version':'v1',
                 'type':'measurement','name':'age','date':'2026-10-06','value':'18','unit':'years'}

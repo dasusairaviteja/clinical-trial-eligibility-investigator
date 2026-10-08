@@ -1,10 +1,35 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from clinical_trial.reviews import ConflictError, ReviewStore
 
 
 class ReviewTests(unittest.TestCase):
+    def test_read_snapshot_survives_interleaved_correction(self):
+        created = self.store.create(self.report)
+        connection = self.store.connect()
+        connection.execute('PRAGMA journal_mode=WAL')
+        connection.close()
+        reader = self.store.connect()
+        writer = ReviewStore(self.path)
+
+        class InterleavedConnection:
+            def execute(inner, sql, *args):
+                if sql.startswith('SELECT body, previous_hash'):
+                    writer.correct(created['id'], 0, 'age', 'supported',
+                                   'Interleaved correction', 'reviewer')
+                return reader.execute(sql, *args)
+
+            def close(inner):
+                reader.close()
+
+        with patch.object(self.store, 'connect', return_value=InterleavedConnection()):
+            snapshot = self.store.get(created['id'])
+        self.assertEqual(snapshot['revision'], 0)
+        self.assertEqual(len(snapshot['audit']), 1)
+        self.assertEqual(writer.get(created['id'])['revision'], 1)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

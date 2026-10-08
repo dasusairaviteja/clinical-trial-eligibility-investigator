@@ -194,3 +194,11 @@ do not keep creating one-point registry-only increments.
 - Azure deployment, authenticated production runtime, browser QA, remaining data
   adapters, baseline runs and research validation remain incomplete.
 - Next: finish and test the authentication/runtime drafts, then deployment artifacts.
+
+## 2026-10-08 — Release hardening (79/100 after CI)
+
+Shared offline/agent evidence checks, malformed-record fail-closed controls,
+consistent audit snapshots, in-flight UI session isolation, automated accessibility
+scans and a real-runtime concurrent-request probe. See docs/RELEASE_HARDENING.md.
+Local: 141 Python tests, DOM contracts and Gunicorn smoke/concurrency passed.
+Actual Azure/model/clinical acceptance remains blocked; 100/100 is not claimed.
