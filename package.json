@@ -1,6 +1,11 @@
 {
   "name": "triallens-browser-checks",
   "private": true,
-  "scripts": {"test:browser": "playwright test"},
-  "devDependencies": {"@playwright/test": "1.63.0"}
+  "scripts": {
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0"
+  }
 }

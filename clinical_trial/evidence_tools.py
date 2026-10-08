@@ -9,6 +9,7 @@ from decimal import Decimal
 import json
 import re
 from .tools import numerical, temporal, calendar_months_before
+from .report import _unique_object, _reject_constant
 
 
 def check(criterion, sources, *, research_ablation=None):
@@ -36,11 +37,15 @@ def check(criterion, sources, *, research_ablation=None):
                 matches.append((source,match.start(),match.end(),verdict))
         elif measurement or event:
             try:
-                record = json.loads(source.text)
+                record = json.loads(source.text, object_pairs_hook=_unique_object,
+                                    parse_constant=_reject_constant)
                 if record.get('schema') != 'synthetic-observation-v1': continue
-                if record.get('patient_id') != source.patient_id: continue
+                if record.get('patient_id') != source.patient_id: return result
                 if measurement and record.get('type') == 'measurement' and record.get('name') == measurement[1]:
                     date.fromisoformat(measurement[5])
+                    # A valid older observation is irrelevant, but a malformed
+                    # date must not be discarded in favor of convenient evidence.
+                    date.fromisoformat(record.get('date'))
                     if record.get('date') != measurement[5] and research_ablation != 'without_temporal': continue
                     verdict = numerical(record.get('value'),measurement[2],measurement[3],record.get('unit'),measurement[4])
                     if interval:
@@ -48,11 +53,11 @@ def check(criterion, sources, *, research_ablation=None):
                         verdict='unknown' if 'unknown' in (verdict,upper) else ('supported' if verdict==upper=='supported' else 'contradicted')
                 elif event and record.get('type') == 'event_history' and record.get('name') == event[1]:
                     dates = record.get('events')
-                    if not isinstance(dates,list): continue
+                    if not isinstance(dates,list): return result
                     calendar_months_before(date.fromisoformat(event[3]),int(event[2]))
                     lower,upper=record.get('complete_since'),record.get('complete_through')
-                    if (lower is None) != (upper is None): continue
-                    if lower is not None and date.fromisoformat(lower)>date.fromisoformat(upper): continue
+                    if (lower is None) != (upper is None): return result
+                    if lower is not None and date.fromisoformat(lower)>date.fromisoformat(upper): return result
                     verdict = temporal(dates,event[3],int(event[2]),record.get('complete_since'),record.get('complete_through'))
                     # Deliberately weakened research controls. Production callers
                     # never pass this flag; malformed dates are still rejected.
@@ -63,8 +68,12 @@ def check(criterion, sources, *, research_ablation=None):
                         verdict = 'contradicted'
                 else: continue
                 matches.append((source,0,len(source.text),verdict))
-            except (ValueError,TypeError,AttributeError):
-                continue
+            except (ValueError,TypeError,AttributeError,RecursionError):
+                # Unparseable JSON cannot safely be classified as irrelevant.
+                # Plain narrative is allowed, but malformed structured records
+                # block definitive assertions until reviewed.
+                if source.text.lstrip().startswith(('{', '[')):
+                    return result
     # Multiple assessments are ambiguous, even if values agree. Never silently
     # pick a convenient source or merge incompatible coverage statements.
     if len(matches) == 1:

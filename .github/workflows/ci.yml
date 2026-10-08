@@ -33,6 +33,7 @@ jobs:
       - run: python -m clinical_trial.synthetic_study "$RUNNER_TEMP/synthetic-controls.json"
       - run: python -m pip install --require-hashes -r requirements.txt
       - run: python scripts/smoke_runtime.py
+      - run: python scripts/check_concurrent_runtime.py
       - run: python -m compileall -q clinical_trial scripts tests
       - run: python scripts/release_manifest.py > "$RUNNER_TEMP/release-manifest.json"
 

@@ -21,7 +21,7 @@ incorrect eligibility assertions compared with ordinary RAG.
 
 ## Key constraints
 
-- **No real patient data.** Synthetic records only. The current observation adapter is a project schema; FHIR/Synthea support is pending. Nothing here is
+- **No real patient data.** Synthetic records only. The current observation adapter is a project schema; a strict synthetic FHIR Observation subset is supported, with explicit coding maps and attestation. Nothing here is
   medical advice; every output is a draft for qualified human review.
 - **Secrets** (API keys, Azure credentials) live in `.env`, which is gitignored
   and never committed.
@@ -32,7 +32,8 @@ incorrect eligibility assertions compared with ordinary RAG.
 - `ARCHITECTURE.md` — system architecture
 - `EVALUATION.md` — evaluation protocol, baselines, metrics, ablations
 - `BACKLOG.md` — weighted backlog totaling 100%
-- `src/` — application code (after scope approval)
+- `clinical_trial/` — Python API, agent, tools and evaluation code
+- `web/` — integrated reviewer workspace and legacy static preview
 - `tests/` — tests
 - `docs/` — research documentation
 
@@ -56,15 +57,14 @@ See `docs/OPERATIONS.md` for setup, recovery and production gates, and
 
 | Environment | Web app | Deployments |
 |---|---|---|
-| ENG | [triallens-eng.azurestaticapps.net](https://triallens-eng.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=ENG) |
-| TEST | [triallens-test.azurestaticapps.net](https://triallens-test.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=TEST) |
-| PROD | [triallens-prod.azurestaticapps.net](https://triallens-prod.azurestaticapps.net) *(planned)* | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=PROD) |
+| ENG | Not deployed — no verified application URL | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=ENG) |
+| TEST | Not deployed — no verified application URL | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=TEST) |
+| PROD | Not deployed — no verified application URL | [Activity](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/deployments/activity_log?environment=PROD) |
 
 - [All environments (settings)](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/settings/environments)
 - [Actions runs](https://github.com/dasusairaviteja/clinical-trial-eligibility-investigator/actions)
 
-App URLs are placeholders — Azure Static Web Apps are not provisioned yet and
-will replace these links when deployment happens. See `docs/ENVIRONMENTS.md`.
+Application URLs will be recorded only after a real deployment is verified. See `docs/ENVIRONMENTS.md`.
 
 ## Run locally
 
@@ -147,3 +147,8 @@ not clinical performance results.
 
 See [acceptance scope](docs/MILESTONE_75.md) and [deployment preparation](docs/DEPLOYMENT.md).
 No Azure application URL exists yet; the infrastructure templates are preparation artifacts.
+
+## Release hardening
+
+See [verified work and remaining gates](docs/RELEASE_HARDENING.md). Completion is
+79/100 only after this change passes CI; the remaining 21 points are not claimed.

@@ -82,6 +82,9 @@ class ReviewStore:
 
     def get(self, identifier):
         with closing(self.connect()) as db:
+            # Report revision and audit must come from the same snapshot while
+            # another reviewer commits a correction between these reads.
+            db.execute("BEGIN")
             row = db.execute("SELECT body, revision FROM reports WHERE id=?", (identifier,)).fetchone()
             if row is None:
                 raise KeyError("report not found")
