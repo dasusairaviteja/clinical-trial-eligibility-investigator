@@ -8,6 +8,7 @@ import random
 import copy
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .cohort import digest
@@ -68,6 +69,14 @@ def score_review(cohort, key, completed):
             for arm, predictions in cohort['predictions'].items()}
 
 
+def write_private_key(path, key):
+    """Create an owner-only mapping without exposing a permissive write window."""
+    encoded = json.dumps(key, indent=2, allow_nan=False)
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        stream.write(encoded)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['prepare', 'score'])
@@ -81,9 +90,7 @@ def main():
         if args.packet.exists() or args.key.exists() or args.packet.resolve() == args.key.resolve():
             parser.error('packet and private key need different unused paths')
         packet, key = review_packet(cohort)
-        with args.key.open('x') as stream:
-            json.dump(key, stream, indent=2)
-        args.key.chmod(0o600)
+        write_private_key(args.key, key)
         with args.packet.open('x') as stream:
             json.dump(packet, stream, indent=2)
     else:
