@@ -68,18 +68,25 @@ ceilings are common across arms, but actual token consumption is not matched.
 
 Give reviewers `review.json` plus secure read access to the full source registry,
 trial snapshots and frozen labeling protocol. Cited excerpts alone are insufficient
-for deciding that evidence is missing. Keep `private-key.json` away from reviewers:
-it maps the shuffled review IDs to arms. IDs are pseudonymous, not anonymized or
-cryptographically secret. Ask independent reviewers to fill `gold`,
-`evidence_correct`, `reviewer` and `rationale`; do not edit criterion content.
-Adjudicate disagreements against the same source documents before scoring.
+for deciding that evidence is missing. Version 2 separates two tasks: `gold_rows`
+contain each patient/trial/criterion exactly once and deliberately contain no model
+verdict or evidence output; `evidence_rows` contain shuffled, arm-hidden candidate
+outputs but no gold label. Complete `gold`, `reviewer` and `rationale` only in the
+first task, and `evidence_correct`, `reviewer` and `rationale` only in the second.
+
+Use separate reviewers or separated sessions when feasible. Keep
+`private-key.json` away from all reviewers: it maps evidence review IDs to arms.
+IDs are pseudonymous, not anonymized or cryptographically secret. Do not edit
+criterion or candidate-output content. Adjudicate disagreements against the same
+source documents before scoring.
 
 ```sh
 python -m clinical_trial.adjudication score local-data/cohort.json local-data/review.json local-data/private-key.json --output local-data/metrics.json
 ```
 
-Scoring rejects incomplete/duplicate reviews, changed cohorts or evidence, and
-inconsistent gold labels across arms. It does not certify reviewer qualifications.
+Scoring rejects incomplete/duplicate reviews, changed cohorts, definitions or
+candidate evidence. It joins the single gold decision to every arm only after both
+review tasks are complete. It does not certify reviewer qualifications.
 Unmeasured model cost remains null; total cost is null if any prediction is
 unpriced. Case-level latency/cost are allocated evenly to criterion rows, while
 the original case totals remain in `runs`; this is not per-criterion timing.
