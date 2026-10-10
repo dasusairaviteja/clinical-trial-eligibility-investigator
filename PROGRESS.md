@@ -210,3 +210,11 @@ blinded adjudication handoff, null-preserving cost reporting and research method
 documentation. Live snapshot NCT02993146 fetched successfully, but kept private
 and unapproved. See docs/LOCAL_COMPLETION.md for evidence and remaining gates.
 User deferred access/environment/secret configuration. No paid calls or resources.
+
+## 2026-10-09 — Outcome-blinded adjudication handoff
+
+Split the review packet into unique clinical-gold rows that contain no model output
+and separately shuffled, arm-hidden evidence-assessment rows. Scoring now joins the
+two completed tasks only after exact coverage, reviewer attribution and content
+integrity checks pass. This closes a software research-validity flaw; it does not
+constitute clinical adjudication. Accepted progress remains 81/100.

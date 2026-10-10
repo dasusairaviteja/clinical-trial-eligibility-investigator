@@ -164,34 +164,64 @@ class CohortTests(unittest.TestCase):
         cohort = run_cohort(self.registry, [self.request], ['rules', 'bounded_agent'],
             planner_factory=factory, planner_provenance='scripted_software_test_not_llm')
         packet, key = review_packet(cohort)
+        self.assertEqual(len(packet['gold_rows']), 2)
+        self.assertEqual(len(packet['evidence_rows']), 4)
+        self.assertNotIn('predicted', json.dumps(packet['gold_rows']))
+        self.assertNotIn('verdict', json.dumps(packet['gold_rows']))
         result = score_review(cohort, key, self.completed(packet))
         self.assertIsNone(result['bounded_agent']['total_cost_usd'])
         self.assertEqual(result['bounded_agent']['unpriced_predictions'], 2)
 
     def completed(self, packet):
         completed = copy.deepcopy(packet)
-        for row in completed['rows']:
-            row.update(gold=row['criterion']['verdict'], evidence_correct=True,
-                       reviewer='fixture-only', rationale='Authored software test, not clinical review')
+        gold = {}
+        for arm_runs in self.cohort()['runs'].values():
+            for run in arm_runs:
+                for criterion in run['report']['criteria']:
+                    gold[(run['report']['patient_id'], run['report']['trial_id'],
+                          criterion['criterion_id'])] = criterion['verdict']
+        for row in completed['gold_rows']:
+            identity = (row['patient_id'], row['trial_id'], row['criterion']['criterion_id'])
+            row.update(gold=gold[identity], reviewer='fixture-only',
+                       rationale='Authored software test, not clinical review')
+        for row in completed['evidence_rows']:
+            row.update(evidence_correct=True, reviewer='fixture-only',
+                       rationale='Authored software test, not clinical review')
         return completed
 
     def test_review_packet_detached_and_complete_scoring(self):
         cohort = self.cohort()
         packet, key = review_packet(cohort)
-        self.assertNotIn('arm', packet['rows'][0])
+        self.assertNotIn('arm', json.dumps(packet))
+        self.assertNotIn('verdict', json.dumps(packet['gold_rows']))
+        self.assertEqual(len(packet['gold_rows']), len(cohort['predictions']['rules']))
         result = score_review(cohort, key, self.completed(packet))
         self.assertIn('rules', result)
-        packet['rows'][0]['criterion']['statement'] = 'tampered'
+        packet['gold_rows'][0]['criterion']['statement'] = 'tampered'
         with self.assertRaises(ValueError):
             score_review(cohort, key, self.completed(packet))
 
     def test_incomplete_duplicate_and_changed_cohort_rejected(self):
         cohort = self.cohort()
         packet, key = review_packet(cohort)
-        for completed in [packet, {'rows': []}, {'rows': packet['rows'] * 2}]:
+        duplicate = copy.deepcopy(packet)
+        duplicate['gold_rows'] *= 2
+        for completed in [packet, {'schema_version': 2, 'gold_rows': [], 'evidence_rows': []}, duplicate]:
             with self.assertRaises(ValueError):
                 score_review(cohort, key, completed)
         changed = copy.deepcopy(cohort)
         changed['planner_provenance'] = 'tampered'
         with self.assertRaises(ValueError):
             score_review(changed, key, self.completed(packet))
+
+    def test_reviewers_are_named_in_both_separated_tasks(self):
+        cohort = self.cohort()
+        packet, key = review_packet(cohort)
+        completed = self.completed(packet)
+        completed['gold_rows'][0]['reviewer'] = ''
+        with self.assertRaises(ValueError):
+            score_review(cohort, key, completed)
+        completed = self.completed(packet)
+        completed['evidence_rows'][0]['reviewer'] = ''
+        with self.assertRaises(ValueError):
+            score_review(cohort, key, completed)
